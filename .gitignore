@@ -1,0 +1,17 @@
+test.c
+a.out
+main.c
+./test_files/*
+test_files/
+*.swp
+*.o
+*.a
+*.ods
+*.ods#
+tmp
+*.json
+tags
+imgui.ini
+.cache
+tester/.
+philo

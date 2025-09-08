@@ -3,11 +3,14 @@ a.out
 main.c
 ./test_files/*
 test_files/
+build/*
+*.d
 *.swp
 *.o
 *.a
 *.ods
 *.ods#
+*.d
 tmp
 *.json
 tags

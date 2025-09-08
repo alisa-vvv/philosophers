@@ -11,7 +11,6 @@
 # **************************************************************************** #
 
 .DEFAULT_GOAL := all
-MAKEFLAGS =
 
 NAME	=	philo
 CFILES	=	philo.c\
@@ -19,66 +18,81 @@ CFILES	=	philo.c\
 			exit.c\
 			test_funcs.c
 
-OFILES	= $(addprefix $(OBJDIR),$(CFILES:.c=.o))
+OFILES	= $(addprefix $(BUILDDIR),$(CFILES:.c=.o))
+DEPFILES	= $(addprefix $(BUILDDIR),$(CFILES:.c=.d))
 
 VPATH	= $(INCLUDE) $(SRCDIRS)
-OBJDIR = obj/
+BUILDDIR = build/
 SRCDIR = src/
+LIBDIR = lib/
 INCDIR = inc/
-SRCDIRS = $(addprefix $(SRCDIR), rendering controls init_exit\
-		  coordinate_manipulation map_manipulation) $(SRCDIR)
+SRCDIRS = $(SRCDIR)
 
+$(SRCDIR):
+	mkdir -p $@
+$(LIBDIR):
+	mkdir -p $@
 $(INCDIR):
 	mkdir -p $@
+$(BUILDDIR):
+	mkdir -p $@
 
-INCLUDE = $(INCDIR)
+LIBFT_DIR = $(LIBDIR)libft/
+LIBFT	= $(LIBFT_DIR)libft.a
+INCLUDE = $(INCDIR) $(LIBFT_DIR)
 
 RM	= rm -rf
 CC	= cc
-CFLAGS	= -Wall -Wextra -Werror
-INPUT	= 4 100 100 100 -1
 
-#chec kthis
-#include $(OBJ:.o=.d)
-#
-#$(DEPDIR)/%.d	: %.c
-#	$(CC) $(CPPFLAG) $(INCLUDE) -MM -MF $@ -MT $(OBJDIR)/$(addsuffix .o,$(basename $<)) $<
-#
-$(OBJDIR):
-	mkdir -p $@
-$(OBJDIR)%.o: %.c $(INCLUDE) | $(OBJDIR)
-	$(CC) $(CFLAGS) -c $< -o $@ $(addprefix -I,$(INCLUDE))
+CPPFLAGS	= $(INCFLAGS) -MMD -MP
 
-$(NAME): $(OFILES)
-	$(CC) $(CFLAGS) -o $@\
-		$(OFILES) $(addprefix -I,$(INCLUDE))
+INCFLAGS	= $(addprefix -I,$(INCLUDE))
+CFLAGS	= -Wall -Wextra -Werror -fsanitize=undefined
+INPUT	= 4 500 100 100 3
+
+
+-include $(OFILES:.o=.d)
+
+# builds .d files, then builds .o files based on .d.
+# skips files that weren't changed (see CPPFLAGS)
+$(BUILDDIR)%.o: %.c $(INCLUDE) | $(BUILDDIR)
+	$(CC) $(CPPFLAGS) -c $< -o $@
+
+$(LIBFT):
+	$(MAKE) all -C $(LIBFT_DIR)
+
+$(NAME): $(LIBFT) $(OFILES)
+	$(CC) $(CFLAGS) -o $@ $(OFILES) $(LIBFT) $(INCFLAGS)
 
 #Base/project requirements
 all: $(NAME)
+libs_clean:
+	$(MAKE) fclean -C $(LIBFT_DIR)
 clean:
 	$(RM) $(OFILES)
-fclean:	clean
-	$(RM) $(NAME)
+fclean:	clean libs_clean
+	$(RM) $(NAME) $(DEPFILES)
 re:	fclean all
 
 #LSP connection for neovim
 clangd:
 	$(MAKE) fclean
-	intercept-build-14 make all
+	intercept-build-14 $(MAKE)
 
 #debugging
-debug: CFLAGS += -g
+debug: CPPFLAGS += -g
 debug: clean $(NAME)
 gdb: fclean debug
-	gdb ./$(NAME)
-test: clean $(NAME) run
+	gdb -tui ./$(NAME)
+test: $(NAME) run
 run:
 	./$(NAME) $(INPUT)
-leak:	debug
-	valgrind  --suppressions=MLX42.supp -s --leak-check=full \
-	--show-leak-kinds=all --track-fds=yes ./$(NAME) $(INPUT)
+leak:
+	$(MAKE) -s debug
+	valgrind --track-fds=yes --track-origins=yes \
+	-s --leak-check=full --show-leak-kinds=all ./$(NAME) $(INPUT)
 val:
-	valgrind  --suppressions=MLX42.supp -s --leak-check=full \
-	--show-leak-kinds=all --track-fds=yes ./$(NAME) $(INPUT)
+	valgrind --track-fds=yes --track-origins=yes \
+	-s --leak-check=full --show-leak-kinds=all ./$(NAME) $(INPUT)
 
-.PHONY:	clangd all clean fclean re test run leak debug gdb
+.PHONY:	clangd all clean fclean re libs_clean test run leak debug gdb

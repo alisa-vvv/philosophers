@@ -1,4 +1,5 @@
 #include "philo.h"
+#include <stdbool.h>
 #include <stdio.h> // - printf
 #include <unistd.h> // - write, usleep. IN HEADER
 #include <string.h> // - memset
@@ -38,6 +39,10 @@ t_philo_errno	set_philo_args(
 	return (success);
 }
 
+// philosophers and forks are enums
+// forks can be USED or UNUSED
+// philisophers will have values based on their current action
+// fork
 int	main(
 	int				argc,
 	char			**argv
@@ -45,6 +50,8 @@ int	main(
 {
 	t_philo_errno	err_check;
 	t_philo_args	philo_args;
+	int				*philosophers;
+	bool			*forks;
 
 	if (argc != 5 && argc != 6)
 		return (philo_exit(wrong_argc));

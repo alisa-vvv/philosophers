@@ -16,6 +16,7 @@
 # include <unistd.h>
 
 # define SECOND 1000000
+# define MILLISECOND 1000
 
 typedef struct s_philo_args
 {
@@ -40,13 +41,19 @@ t_philo_errno	philo_exit(
 /*		endof Exit		*/
 
 /*		Utils			*/
+
 int	philo_putstr_fd(
 	int		fd,
 	char	*str
 );
-
 int		philo_atoi(
+
 	unsigned char	*str
+);
+
+void	*philo_calloc(
+	size_t nmemb,
+	size_t size
 );
 /*		endof Utils		*/
 

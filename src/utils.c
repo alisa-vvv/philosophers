@@ -11,6 +11,8 @@
 /* ************************************************************************** */
 
 #include <unistd.h>
+#include <stdlib.h>
+#include <string.h>
 
 int	philo_putstr_fd(
 	int		fd,
@@ -23,6 +25,24 @@ int	philo_putstr_fd(
 	while(str[len])
 		len++;
 	return (write(fd, str, len));
+}
+
+void	*philo_calloc(
+	size_t nmemb,
+	size_t size
+)
+{
+	void	*memory;
+
+	if (size == 0)
+		return (malloc(0));
+	if (nmemb > (size_t) - 1 / size)
+		return (NULL);
+	memory = malloc(nmemb * size);
+	if (memory == NULL)
+		return (NULL);
+	memset(memory, 0, nmemb);
+	return (memory);
 }
 
 int		philo_atoi(

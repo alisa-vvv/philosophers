@@ -13,24 +13,22 @@
 * pthread_mutex_unlock
 */
 
+#define NO_LIMIT -1
 t_philo_errno	set_philo_args(
 	t_philo_args *args,
 	char **argv
 )
 {
 	args->philo_count = philo_atoi((unsigned char *) argv[1]);
-	if (args->philo_count <= 0)
-	 	return (invalid_argument);
 	args->time_to_die = philo_atoi((unsigned char *) argv[2]);
-	if (args->time_to_die <= 0)
-	 	return (invalid_argument);
 	args->time_to_eat = philo_atoi((unsigned char *) argv[3]);
-	if (args->time_to_eat <= 0)
-	 	return (invalid_argument);
-	args->time_to_eat *= 1000;
 	args->time_to_sleep = philo_atoi((unsigned char *) argv[4]);
-	if (args->time_to_sleep <= 0)
+	if (args->time_to_die <= 0 || args->time_to_eat <= 0
+		|| args->time_to_sleep <= 0)
 	 	return (invalid_argument);
+	args->time_to_die *= 1000;
+	args->time_to_eat *= 1000;
+	args->time_to_sleep *= 1000;
 	if (argv[5])
 	{
 		args->meal_count = philo_atoi((unsigned char *) argv[5]);
@@ -38,7 +36,7 @@ t_philo_errno	set_philo_args(
 	 		return (invalid_argument);
 	}
 	else
-		args->meal_count = -2;
+		args->meal_count = NO_LIMIT;
 	return (success);
 }
 
@@ -49,6 +47,7 @@ t_philo_errno	set_philo_args(
 #define THINKING 0
 #define EATING 1
 #define SLEEPING 2
+
 // philosophers and forks are enums (or just ints with a custom value?)
 // forks can be USED or UNUSED
 // philisophers will have values based on their current action
@@ -106,16 +105,29 @@ void	*do_philosophy(
 {
 	t_thread_data	*data = (t_thread_data *) data_1;
 	unsigned long	cur_timestamp;
+	int				times_eaten;
+	int				total_meals;
+	int				*left_fork;
+	int				*right_fork;
 	// step 1: grab fork
-	int times_eaten;
 
+	left_fork = &data->forks[data->philo_index];
+	if (data->philo_index == data->philo_args.philo_count - 1)
+		right_fork = &data->forks[0]; // replace with 1
+	else
+		right_fork = &data->forks[data->philo_index + 1];
 	times_eaten = -1;
-	while (++times_eaten < data->philo_args.meal_count)
+	if (data->philo_args.meal_count >= 0)
+		total_meals = data->philo_args.meal_count;
+	if (data->philo_args.meal_count == NO_LIMIT)
+		total_meals = 1;
+	while (++times_eaten < total_meals)
 	{
 		// this loop probably doesn't exist based on how I understand mutex
 		// this is THINKING
-		printf("philosopher %d is thinking\n", data->philo_index);
-		while (data->forks[data->philo_index] == USED && data->forks[data->philo_index + 1] == USED)
+		cur_timestamp = get_timestamp_in_ms(data->start_timestamp) - data->start_timestamp;
+		printf("%lu philosopher %d is thinking\n", cur_timestamp, data->philo_index);
+		while (*left_fork == USED && *right_fork == USED)
 		{
 			// this is probably running on a separate thread?
 			cur_timestamp = get_timestamp_in_ms(data->start_timestamp);
@@ -126,17 +138,19 @@ void	*do_philosophy(
 			}
 		}
 		// this would be an atomic action
-		if (data->forks[data->philo_index] == UNUSED && data->forks[data->philo_index + 1] == UNUSED)
+		if (*left_fork == UNUSED && *right_fork == UNUSED)
 		{
 			//lock muteces
-			data->forks[data->philo_index] = USED;
-			data->forks[data->philo_index + 1] = USED;
+			*left_fork = USED;
+			*right_fork = USED;
 			philo_state_eating(data->philo_index, data->philo_args.time_to_eat, data->start_timestamp);
 			//unlock muteces
-			data->forks[data->philo_index] = UNUSED;
-			data->forks[data->philo_index + 1] = UNUSED;
+			*left_fork = UNUSED;
+			*right_fork = UNUSED;
 		}
 		usleep(data->philo_args.time_to_sleep);
+		if (data->philo_args.meal_count == NO_LIMIT)
+			times_eaten = -1;
 	}
 	return (0);
 }
@@ -152,12 +166,12 @@ int	philosophy_praxis(
 	t_thread_data	*data;
 	unsigned int	i;
 
-	philo_threads = malloc(philo_args.philo_count * sizeof(pthread_t));
-	data = malloc(philo_args.philo_count * sizeof(t_thread_data));
+	philo_threads = philo_calloc(philo_args.philo_count, sizeof(pthread_t));
+	data = philo_calloc(philo_args.philo_count, sizeof(t_thread_data));
 	i = -1;
 	while (++i < philo_args.philo_count)
 	{
-		data[i].forks = philo_calloc(philo_args.philo_count, sizeof(int));
+		data[i].forks = forks;
 		data[i].philosophers = philosophers;
 		data[i].philosophers = philosophers;
 		data[i].philo_args = philo_args;
@@ -170,7 +184,6 @@ int	philosophy_praxis(
 	i = -1;
 	while (++i < philo_args.philo_count)
 		pthread_join(philo_threads[i], NULL);
-	i = -1;
 	free(data);
 	free(philo_threads);
 	return (0);
@@ -181,6 +194,7 @@ int	main(
 	char **argv
 )
 {
+	pthread_mutex_t	test;
 	t_philo_errno	err_check;
 	t_philo_args	philo_args;
 	int				*philosophers;
@@ -188,6 +202,7 @@ int	main(
 	struct timeval	timestamp;
 	unsigned long	start_timestamp;
 
+	pthread_mutex_init(test, NULL);
 	if (argc != 5 && argc != 6)
 		return (philo_exit(wrong_argc));
 	err_check = set_philo_args(&philo_args,	argv);

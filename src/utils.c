@@ -32,7 +32,8 @@ void	*philo_calloc(
 	size_t size
 )
 {
-	void	*memory;
+	unsigned char	*memory;
+	int				i;
 
 	if (size == 0)
 		return (malloc(0));
@@ -41,7 +42,9 @@ void	*philo_calloc(
 	memory = malloc(nmemb * size);
 	if (memory == NULL)
 		return (NULL);
-	memset(memory, 0, nmemb);
+	i = -1;
+	while (++i < nmemb)
+		memory[i] = 0;
 	return (memory);
 }
 

@@ -43,8 +43,8 @@ t_philo_errno	set_philo_args(
 }
 
 // defines for forks
-#define USED 1;
-#define FREE 0;
+#define USED 1
+#define UNUSED 0
 // defines for philos
 #define THINKING 0
 #define EATING 1
@@ -76,8 +76,6 @@ unsigned long	get_timestamp_in_ms(
 void	philo_state_eating(
 	int	philo_index,
 	int	time_to_eat,
-	int	*left_fork,
-	int	*right_fork,
 	unsigned long start_timestamp
 )
 {
@@ -91,6 +89,66 @@ void	philo_state_eating(
 	printf("%lu philosopher %d stopped eating\n",
 			new_timestamp - start_timestamp, philo_index);
 	return ;
+}
+
+int	do_philosophy(
+	int	i,
+	int *forks,
+	t_philo_args philo_args,
+	unsigned long start_timestamp
+)
+{
+	unsigned long	cur_timestamp;
+	// step 1: grab fork
+	int times_eaten;
+
+	times_eaten = -1;
+	while (++times_eaten < philo_args.meal_count)
+	{
+		// this loop probably doesn't exist based on how I understand mutex
+		// this is THINKING
+		while (forks[0] == USED && forks[1] == USED)
+		{
+			// this is probably running on a separate thread?
+			cur_timestamp = get_timestamp_in_ms(start_timestamp);
+			if (cur_timestamp - start_timestamp > philo_args.time_to_die)
+			{
+				printf("philosopher %d fucking died\n", i);
+				return (-1);
+			}
+			continue ;
+		}
+		// this would be an atomic action
+		if (forks[0] == UNUSED && forks[1] == UNUSED)
+		{
+			//lock muteces
+			forks[0] = USED;
+			forks[1] = USED;
+			philo_state_eating(i, philo_args.time_to_eat, start_timestamp);
+			//unlock muteces
+			forks[0] = UNUSED;
+			forks[1] = UNUSED;
+		}
+		usleep(philo_args.time_to_sleep);
+	}
+	return (0);
+}
+
+int	philosophy_praxis(
+	int *forks,
+	int *philosophers,
+	t_philo_args philo_args,
+	unsigned long start_timestamp
+)
+{
+	unsigned int	i;
+
+	i = -1;
+	while (++i < philo_args.philo_count)
+	{
+		do_philosophy(i, forks, philo_args, start_timestamp);
+	}
+	return (0);
 }
 
 int	main(
@@ -120,7 +178,7 @@ int	main(
 	test_print_args(&philo_args);
 	gettimeofday(&timestamp, NULL);
 	start_timestamp = timestamp.tv_sec * 1000 + timestamp.tv_usec / 1000;
-	philo_state_eating(0, philo_args.time_to_eat, &forks[0], &forks[1], start_timestamp);
+	philosophy_praxis(forks, philosophers, philo_args, start_timestamp);
 	free(philosophers);
 	free(forks);
 	philo_exit(success);

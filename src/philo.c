@@ -114,7 +114,8 @@ void	*do_philosophy(
 	{
 		// this loop probably doesn't exist based on how I understand mutex
 		// this is THINKING
-		while (data->forks[0] == USED && data->forks[1] == USED)
+		printf("philosopher %d is thinking\n", data->philo_index);
+		while (data->forks[data->philo_index] == USED && data->forks[data->philo_index + 1] == USED)
 		{
 			// this is probably running on a separate thread?
 			cur_timestamp = get_timestamp_in_ms(data->start_timestamp);
@@ -123,7 +124,6 @@ void	*do_philosophy(
 				printf("philosopher %d fucking died\n", data->philo_index);
 				return (NULL);
 			}
-			continue ;
 		}
 		// this would be an atomic action
 		if (data->forks[data->philo_index] == UNUSED && data->forks[data->philo_index + 1] == UNUSED)
@@ -149,25 +149,30 @@ int	philosophy_praxis(
 )
 {
 	pthread_t		*philo_threads;
-	unsigned int	i;
 	t_thread_data	*data;
+	unsigned int	i;
 
 	philo_threads = malloc(philo_args.philo_count * sizeof(pthread_t));
 	data = malloc(philo_args.philo_count * sizeof(t_thread_data));
 	i = -1;
 	while (++i < philo_args.philo_count)
 	{
-		data[i].forks = forks;
+		data[i].forks = philo_calloc(philo_args.philo_count, sizeof(int));
 		data[i].philosophers = philosophers;
 		data[i].philosophers = philosophers;
 		data[i].philo_args = philo_args;
 		data[i].start_timestamp = start_timestamp;
 		data[i].philo_index = i;
-		pthread_create(&philo_threads[i], NULL, do_philosophy, &data[i]);
 	}
 	i = -1;
 	while (++i < philo_args.philo_count)
+		pthread_create(&philo_threads[i], NULL, do_philosophy, &data[i]);
+	i = -1;
+	while (++i < philo_args.philo_count)
 		pthread_join(philo_threads[i], NULL);
+	i = -1;
+	free(data);
+	free(philo_threads);
 	return (0);
 }
 

@@ -194,7 +194,6 @@ int	main(
 	char **argv
 )
 {
-	pthread_mutex_t	test;
 	t_philo_errno	err_check;
 	t_philo_args	philo_args;
 	int				*philosophers;
@@ -202,7 +201,6 @@ int	main(
 	struct timeval	timestamp;
 	unsigned long	start_timestamp;
 
-	pthread_mutex_init(test, NULL);
 	if (argc != 5 && argc != 6)
 		return (philo_exit(wrong_argc));
 	err_check = set_philo_args(&philo_args,	argv);

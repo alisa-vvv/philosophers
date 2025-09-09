@@ -91,45 +91,52 @@ void	philo_state_eating(
 	return ;
 }
 
-int	do_philosophy(
-	int	i,
-	int *forks,
-	t_philo_args philo_args,
-	unsigned long start_timestamp
+typedef struct	s_thread_data
+{
+	int				philo_index;
+	int 			*forks;
+	int 			*philosophers;
+	t_philo_args	philo_args;
+	unsigned long	start_timestamp;
+}	t_thread_data;
+
+void	*do_philosophy(
+	void	*data_1
 )
 {
+	t_thread_data	*data = (t_thread_data *) data_1;
 	unsigned long	cur_timestamp;
 	// step 1: grab fork
 	int times_eaten;
 
 	times_eaten = -1;
-	while (++times_eaten < philo_args.meal_count)
+	while (++times_eaten < data->philo_args.meal_count)
 	{
 		// this loop probably doesn't exist based on how I understand mutex
 		// this is THINKING
-		while (forks[0] == USED && forks[1] == USED)
+		while (data->forks[0] == USED && data->forks[1] == USED)
 		{
 			// this is probably running on a separate thread?
-			cur_timestamp = get_timestamp_in_ms(start_timestamp);
-			if (cur_timestamp - start_timestamp > philo_args.time_to_die)
+			cur_timestamp = get_timestamp_in_ms(data->start_timestamp);
+			if (cur_timestamp - data->start_timestamp > data->philo_args.time_to_die)
 			{
-				printf("philosopher %d fucking died\n", i);
-				return (-1);
+				printf("philosopher %d fucking died\n", data->philo_index);
+				return (NULL);
 			}
 			continue ;
 		}
 		// this would be an atomic action
-		if (forks[0] == UNUSED && forks[1] == UNUSED)
+		if (data->forks[data->philo_index] == UNUSED && data->forks[data->philo_index + 1] == UNUSED)
 		{
 			//lock muteces
-			forks[0] = USED;
-			forks[1] = USED;
-			philo_state_eating(i, philo_args.time_to_eat, start_timestamp);
+			data->forks[data->philo_index] = USED;
+			data->forks[data->philo_index + 1] = USED;
+			philo_state_eating(data->philo_index, data->philo_args.time_to_eat, data->start_timestamp);
 			//unlock muteces
-			forks[0] = UNUSED;
-			forks[1] = UNUSED;
+			data->forks[data->philo_index] = UNUSED;
+			data->forks[data->philo_index + 1] = UNUSED;
 		}
-		usleep(philo_args.time_to_sleep);
+		usleep(data->philo_args.time_to_sleep);
 	}
 	return (0);
 }
@@ -141,13 +148,26 @@ int	philosophy_praxis(
 	unsigned long start_timestamp
 )
 {
+	pthread_t		*philo_threads;
 	unsigned int	i;
+	t_thread_data	*data;
 
+	philo_threads = malloc(philo_args.philo_count * sizeof(pthread_t));
+	data = malloc(philo_args.philo_count * sizeof(t_thread_data));
 	i = -1;
 	while (++i < philo_args.philo_count)
 	{
-		do_philosophy(i, forks, philo_args, start_timestamp);
+		data[i].forks = forks;
+		data[i].philosophers = philosophers;
+		data[i].philosophers = philosophers;
+		data[i].philo_args = philo_args;
+		data[i].start_timestamp = start_timestamp;
+		data[i].philo_index = i;
+		pthread_create(&philo_threads[i], NULL, do_philosophy, &data[i]);
 	}
+	i = -1;
+	while (++i < philo_args.philo_count)
+		pthread_join(philo_threads[i], NULL);
 	return (0);
 }
 

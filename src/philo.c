@@ -61,27 +61,35 @@ t_philo_errno	set_philo_args(
 // EATING process simply usleep() while keeping their 2 forks atomic
 // SLEEPING just usleep() without doing anything else
 
-void	philo_state_eating(
-	int	philo_index,
-	int	time_to_eat,
-	int	*left_fork,
-	int	*right_fork,
-	unsigned long *start_timestamp
+unsigned long	get_timestamp_in_ms(
+	unsigned long	start_timestamp
 )
 {
-	//stupid stupid stupid stupid stupid stupid stupid stupid stupid stupid stupid stupid stupid stupid 
 	struct timeval	current_time;
 	unsigned long	new_timestamp;
 
 	gettimeofday(&current_time, NULL);
 	new_timestamp = current_time.tv_sec * 1000 + current_time.tv_usec / 1000;
+	return (new_timestamp);
+}
+
+void	philo_state_eating(
+	int	philo_index,
+	int	time_to_eat,
+	int	*left_fork,
+	int	*right_fork,
+	unsigned long start_timestamp
+)
+{
+	unsigned long	new_timestamp;
+
+	new_timestamp = get_timestamp_in_ms(start_timestamp);
 	printf("%lu philosopher %d is eating\n",
-			new_timestamp - *start_timestamp, philo_index);
-	usleep(time_to_eat - MILLISECOND);
-	gettimeofday(&current_time, NULL);
-	new_timestamp = current_time.tv_sec * 1000 + current_time.tv_usec / 1000;
+			new_timestamp - start_timestamp, philo_index);
+	usleep(time_to_eat);
+	new_timestamp = get_timestamp_in_ms(start_timestamp);
 	printf("%lu philosopher %d stopped eating\n",
-			new_timestamp - *start_timestamp, philo_index);
+			new_timestamp - start_timestamp, philo_index);
 	return ;
 }
 
@@ -112,7 +120,7 @@ int	main(
 	test_print_args(&philo_args);
 	gettimeofday(&timestamp, NULL);
 	start_timestamp = timestamp.tv_sec * 1000 + timestamp.tv_usec / 1000;
-	philo_state_eating(0, philo_args.time_to_eat, &forks[0], &forks[1], &start_timestamp);
+	philo_state_eating(0, philo_args.time_to_eat, &forks[0], &forks[1], start_timestamp);
 	free(philosophers);
 	free(forks);
 	philo_exit(success);

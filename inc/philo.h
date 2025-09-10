@@ -20,11 +20,11 @@
 
 typedef struct s_philo_args
 {
-	int	philo_count;
-	int	time_to_die;
-	int	time_to_eat;
-	int	time_to_sleep;
-	int	meal_count;
+	unsigned long	philo_count;
+	unsigned long	time_to_die;
+	unsigned long	time_to_eat;
+	unsigned long	time_to_sleep;
+	int				meal_count;
 }	t_philo_args;
 
 typedef	enum e_philo_errno

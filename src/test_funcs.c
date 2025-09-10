@@ -17,9 +17,9 @@ void			test_print_args(
 	t_philo_args *args
 )
 {
-	printf("philo count: %d\n", args->philo_count);
-	printf("die time: %d\n", args->time_to_die);
-	printf("eat time: %d\n", args->time_to_eat);
-	printf("sleep time: %d\n", args->time_to_sleep);
+	printf("philo count: %lu\n", args->philo_count);
+	printf("die time: %lu\n", args->time_to_die);
+	printf("eat time: %lu\n", args->time_to_eat);
+	printf("sleep time: %lu\n", args->time_to_sleep);
 	printf("meal count: %d\n", args->meal_count);
 }

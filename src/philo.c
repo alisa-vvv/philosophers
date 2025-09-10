@@ -26,7 +26,7 @@ t_philo_errno	set_philo_args(
 	if (args->time_to_die <= 0 || args->time_to_eat <= 0
 		|| args->time_to_sleep <= 0)
 	 	return (invalid_argument);
-	args->time_to_die *= 1000;
+	//args->time_to_die *= 1000;
 	args->time_to_eat *= 1000;
 	args->time_to_sleep *= 1000;
 	if (argv[5])
@@ -69,6 +69,7 @@ unsigned long	get_timestamp_in_ms(
 
 	gettimeofday(&current_time, NULL);
 	new_timestamp = current_time.tv_sec * 1000 + current_time.tv_usec / 1000;
+	new_timestamp = new_timestamp - start_timestamp;
 	return (new_timestamp);
 }
 
@@ -81,12 +82,10 @@ void	philo_state_eating(
 	unsigned long	new_timestamp;
 
 	new_timestamp = get_timestamp_in_ms(start_timestamp);
-	printf("%lu philosopher %d is eating\n",
-			new_timestamp - start_timestamp, philo_index);
+	printf("%lu philosopher %d is eating\n", new_timestamp, philo_index);
 	usleep(time_to_eat);
 	new_timestamp = get_timestamp_in_ms(start_timestamp);
-	printf("%lu philosopher %d stopped eating\n",
-			new_timestamp - start_timestamp, philo_index);
+	printf("%lu philosopher %d stopped eating\n", new_timestamp, philo_index);
 	return ;
 }
 
@@ -97,6 +96,7 @@ typedef struct	s_thread_data
 	int 			*philosophers;
 	t_philo_args	philo_args;
 	unsigned long	start_timestamp;
+	pthread_mutex_t	*my_mutex;
 }	t_thread_data;
 
 void	*do_philosophy(
@@ -105,41 +105,43 @@ void	*do_philosophy(
 {
 	t_thread_data	*data = (t_thread_data *) data_1;
 	unsigned long	cur_timestamp;
+	unsigned long	last_eaten;
 	int				times_eaten;
 	int				total_meals;
 	int				*left_fork;
 	int				*right_fork;
 	// step 1: grab fork
 
+	//if (data->philo_index % 2 == 0)
+	//	usleep(100000);
+	last_eaten = 0;
 	left_fork = &data->forks[data->philo_index];
 	if (data->philo_index == data->philo_args.philo_count - 1)
 		right_fork = &data->forks[0]; // replace with 1
 	else
 		right_fork = &data->forks[data->philo_index + 1];
-	times_eaten = -1;
 	if (data->philo_args.meal_count >= 0)
 		total_meals = data->philo_args.meal_count;
 	if (data->philo_args.meal_count == NO_LIMIT)
 		total_meals = 1;
-	while (++times_eaten < total_meals)
+	times_eaten = 0;
+	while (times_eaten < total_meals)
 	{
 		// this loop probably doesn't exist based on how I understand mutex
 		// this is THINKING
-		cur_timestamp = get_timestamp_in_ms(data->start_timestamp) - data->start_timestamp;
-		printf("%lu philosopher %d is thinking\n", cur_timestamp, data->philo_index);
-		while (*left_fork == USED && *right_fork == USED)
+		cur_timestamp = get_timestamp_in_ms(data->start_timestamp);
+		if (cur_timestamp - last_eaten > data->philo_args.time_to_die)
 		{
-			// this is probably running on a separate thread?
-			cur_timestamp = get_timestamp_in_ms(data->start_timestamp);
-			if (cur_timestamp - data->start_timestamp > data->philo_args.time_to_die)
-			{
-				printf("philosopher %d fucking died\n", data->philo_index);
-				return (NULL);
-			}
+			printf("philosopher %d how tf are they dying: %lu\n", data->philo_index, last_eaten);
+			printf("%lu philosopher %d fucking died\n", cur_timestamp, data->philo_index);
+			return (NULL);
 		}
-		// this would be an atomic action
+		//sepeate muteces
+		//seperaete it so theres a mutex per fork
+		pthread_mutex_lock(data->my_mutex);
 		if (*left_fork == UNUSED && *right_fork == UNUSED)
 		{
+			last_eaten = get_timestamp_in_ms(data->start_timestamp);
 			//lock muteces
 			*left_fork = USED;
 			*right_fork = USED;
@@ -147,8 +149,19 @@ void	*do_philosophy(
 			//unlock muteces
 			*left_fork = UNUSED;
 			*right_fork = UNUSED;
+
+			times_eaten++;
 		}
-		usleep(data->philo_args.time_to_sleep);
+		pthread_mutex_unlock(data->my_mutex);
+		cur_timestamp = get_timestamp_in_ms(data->start_timestamp);
+		usleep(data->philo_args.time_to_sleep / 10 * 8);
+		unsigned long	test_timestamp = get_timestamp_in_ms(data->start_timestamp);
+		while (test_timestamp - cur_timestamp
+			< data->philo_args.time_to_sleep / 1000)
+		{
+			usleep(1);
+			test_timestamp = get_timestamp_in_ms(data->start_timestamp);
+		}
 		if (data->philo_args.meal_count == NO_LIMIT)
 			times_eaten = -1;
 	}
@@ -159,7 +172,8 @@ int	philosophy_praxis(
 	int *forks,
 	int *philosophers,
 	t_philo_args philo_args,
-	unsigned long start_timestamp
+	unsigned long start_timestamp,
+	pthread_mutex_t *my_mutex
 )
 {
 	pthread_t		*philo_threads;
@@ -177,6 +191,7 @@ int	philosophy_praxis(
 		data[i].philo_args = philo_args;
 		data[i].start_timestamp = start_timestamp;
 		data[i].philo_index = i;
+		data[i].my_mutex = my_mutex;
 	}
 	i = -1;
 	while (++i < philo_args.philo_count)
@@ -200,12 +215,14 @@ int	main(
 	int				*forks;
 	struct timeval	timestamp;
 	unsigned long	start_timestamp;
+	pthread_mutex_t	my_mutex;
 
 	if (argc != 5 && argc != 6)
 		return (philo_exit(wrong_argc));
 	err_check = set_philo_args(&philo_args,	argv);
 	if (err_check != success)
 		return (philo_exit(err_check));
+	pthread_mutex_init(&my_mutex, NULL);
 	philosophers = philo_calloc(philo_args.philo_count, sizeof(int));
 	forks = philo_calloc(philo_args.philo_count, sizeof(int));
 	if (!philosophers || !forks)
@@ -216,7 +233,7 @@ int	main(
 	test_print_args(&philo_args);
 	gettimeofday(&timestamp, NULL);
 	start_timestamp = timestamp.tv_sec * 1000 + timestamp.tv_usec / 1000;
-	philosophy_praxis(forks, philosophers, philo_args, start_timestamp);
+	philosophy_praxis(forks, philosophers, philo_args, start_timestamp, &my_mutex);
 	free(philosophers);
 	free(forks);
 	philo_exit(success);

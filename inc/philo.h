@@ -14,9 +14,17 @@
 # define PHILO_H
 
 # include <unistd.h>
+# include <pthread.h>
 
 # define SECOND 1000000
 # define MILLISECOND 1000
+
+typedef	enum e_philo_errno
+{
+	success,
+	wrong_argc,
+	invalid_argument
+}	t_philo_errno;
 
 typedef struct s_philo_args
 {
@@ -27,12 +35,36 @@ typedef struct s_philo_args
 	int				meal_count;
 }	t_philo_args;
 
-typedef	enum e_philo_errno
+typedef enum	e_fork
 {
-	success,
-	wrong_argc,
-	invalid_argument
-}	t_philo_errno;
+	USED = 1,
+	UNUSED = 0,
+	NEVER_USED = -1,
+}	t_fork;
+
+typedef enum	e_philo
+{
+	NONEXISTANCE = -1,
+	THINKING = 0,
+	EATING = 1,
+	SLEEPING = 2,
+}	t_philo;
+
+typedef struct	s_forkex
+{
+	t_fork			fork;
+	pthread_mutex_t	mutex;
+}	t_forkex;
+
+typedef struct	s_thread_data
+{
+	t_philo_args	philo_args;
+	int 			philo_index;
+	t_forkex		*left_forkex;
+	t_forkex		*right_forkex;
+	unsigned long	*start_timestamp;
+}	t_thread_data;
+
 
 /*		Exit			*/
 t_philo_errno	philo_exit(
@@ -58,7 +90,7 @@ void	*philo_calloc(
 /*		endof Utils		*/
 
 /*		Test Functions (COMMENT THEM OUT)			*/
-void			test_print_args(
+void			TEST_print_args(
 	t_philo_args *args
 );
 /*		endof Test Functions						*/

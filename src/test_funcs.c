@@ -13,7 +13,7 @@
 #include "philo.h"
 #include <stdio.h>
 
-void			test_print_args(
+void	TEST_print_args(
 	t_philo_args *args
 )
 {

@@ -81,6 +81,17 @@ unsigned long	get_start_timestamp(
 	return (start_timestamp);
 }
 
+void	philo_think(
+	int	philo_index,
+	int	time_to_eat,
+	unsigned long start_timestamp
+)
+{
+	unsigned long	new_timestamp;
+
+	new_timestamp = get_timestamp_in_ms(start_timestamp);
+	printf("%lu philosopher %d is thinking\n", new_timestamp, philo_index);
+}
 
 void	philo_sleep(
 	unsigned long	start_timestamp,
@@ -126,25 +137,18 @@ void	*praxis(
 	unsigned long	last_eaten;
 	int				times_eaten;
 	int				total_meals;
-	t_fork			*left_fork;
-	t_fork			*right_fork;
-	// step 1: grab fork
 
-	//if (data->philo_index % 2 == 0)
-	//	usleep(100000);
+	if (episteme->philo_index % 2 == 0)
+		usleep(100);
 	last_eaten = 0;
-	left_fork = &episteme->forks[episteme->philo_index];
-	if (episteme->philo_index == episteme->philo_args.philo_count - 1)
-		right_fork = &episteme->forks[0]; // replace with 1
-	else
-		right_fork = &episteme->forks[episteme->philo_index + 1];
 	if (episteme->philo_args.meal_count >= 0)
 		total_meals = episteme->philo_args.meal_count;
-	if (episteme->philo_args.meal_count == NO_LIMIT)
+	else if (episteme->philo_args.meal_count == NO_LIMIT)
 		total_meals = 1;
 	times_eaten = 0;
 	while (times_eaten < total_meals)
 	{
+		philo_think(episteme->philo_index, episteme->philo_args.time_to_eat, episteme->start_timestamp);
 		cur_timestamp = get_timestamp_in_ms(episteme->start_timestamp);
 		if (cur_timestamp - last_eaten > episteme->philo_args.time_to_die)
 		{
@@ -154,45 +158,57 @@ void	*praxis(
 		}
 		//sepeate muteces
 		//seperaete it so theres a mutex per fork
-//		pthread_mutex_lock(episteme->my_mutex);
-		if (*left_fork == UNUSED && *right_fork == UNUSED)
+		int	test[2] = {0, 0};
+		while (test[0] != 1 && test[1] != 1)
 		{
-			last_eaten = get_timestamp_in_ms(episteme->start_timestamp);
-			//lock muteces
-			*left_fork = USED;
-			*right_fork = USED;
-			philo_eat(episteme->philo_index, episteme->philo_args.time_to_eat, episteme->start_timestamp);
-			//unlock muteces
-			*left_fork = UNUSED;
-			*right_fork = UNUSED;
-
-			if (episteme->philo_args.meal_count != NO_LIMIT)
-				times_eaten++;
+			pthread_mutex_lock(episteme->left_forkex->mutex);
+			if (episteme->left_forkex->fork == UNUSED)
+			{
+				episteme->left_forkex->fork = USED;
+				test[0] = 1;
+			}
+			pthread_mutex_unlock(episteme->left_forkex->mutex);
+			pthread_mutex_lock(episteme->right_forkex->mutex);
+			if (episteme->right_forkex->fork == UNUSED)
+			{
+				episteme->right_forkex->fork = USED;
+				test[1] = 1;
+			}
+			pthread_mutex_unlock(episteme->right_forkex->mutex);
 		}
-//		pthread_mutex_unlock(episteme->my_mutex);
-		philo_sleep(episteme->start_timestamp, episteme->philo_args.time_to_sleep);
+		philo_eat(episteme->philo_index, episteme->philo_args.time_to_eat, episteme->start_timestamp);
+		if (episteme->philo_args.meal_count != NO_LIMIT)
+			times_eaten++;
 	}
+//	pthread_mutex_unlock(episteme->my_mutex);
+	philo_sleep(episteme->start_timestamp, episteme->philo_args.time_to_sleep);
 	return (0);
 }
 
 int	construct_paradigm(
+	t_thread_data **episteme,
 	t_philo_args philo_args,
-	pthread_t *philo_threads,
-	t_thread_data *episteme,
-	unsigned long *start_timestamp
+	t_forkex *forkexes,
+	unsigned long start_timestamp
 )
 {
 	int	i;
 
+	*episteme = philo_calloc(philo_args.philo_count, sizeof(t_thread_data));
 	i = -1;
 	while (++i < philo_args.philo_count)
 	{
-		episteme[i].philo_args = philo_args;
-		episteme[i].start_timestamp = start_timestamp;
-		episteme[i].philo_index = i;
+		(*episteme)[i].philo_args = philo_args;
+		(*episteme)[i].start_timestamp = start_timestamp;
+		(*episteme)[i].left_forkex = &forkexes[i];
+		if (i != philo_args.philo_count - 1)
+			(*episteme)[i].right_forkex = &forkexes[i + 1];
+		else
+			(*episteme)[i].right_forkex = &forkexes[0];
+		(*episteme)[i].philo_index = i;
+		(*episteme)[i].start_timestamp = get_start_timestamp(); // this comes later
 	}
-	philo_threads = philo_calloc(philo_args.philo_count, sizeof(pthread_t));
-	episteme = philo_calloc(philo_args.philo_count, sizeof(t_thread_data));
+	return (0);
 }
 
 int	prepare_simulation(
@@ -206,11 +222,10 @@ int	prepare_simulation(
 	unsigned int	i;
 	unsigned long	start_timestamp;
 
-	philo_threads = NULL;
+	philo_threads = philo_calloc(philo_args.philo_count, sizeof(pthread_t));
 	episteme = NULL;
 	start_timestamp = 0;
-	construct_paradigm(philo_args, philo_threads, episteme, &start_timestamp);
-	start_timestamp = get_start_timestamp(); // this comes later
+	construct_paradigm(&episteme, philo_args, forkexes, start_timestamp);
 	i = -1;
 	while (++i < philo_args.philo_count)
 		pthread_create(&philo_threads[i], NULL, praxis, &episteme[i]);
@@ -243,6 +258,7 @@ int	instantiate_subjects_and_objects(
 		forkexes[i].fork = -1;
 		philosophers[i] = -1;
 	}
+	return (0);
 }
 
 int	main(

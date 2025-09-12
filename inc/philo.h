@@ -53,7 +53,7 @@ typedef enum	e_philo
 typedef struct	s_forkex
 {
 	t_fork			fork;
-	pthread_mutex_t	mutex;
+	pthread_mutex_t	*mutex;
 }	t_forkex;
 
 typedef struct	s_thread_data
@@ -62,7 +62,7 @@ typedef struct	s_thread_data
 	int 			philo_index;
 	t_forkex		*left_forkex;
 	t_forkex		*right_forkex;
-	unsigned long	*start_timestamp;
+	unsigned long	start_timestamp;
 }	t_thread_data;
 
 

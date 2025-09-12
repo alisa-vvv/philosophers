@@ -138,8 +138,10 @@ void	*praxis(
 	int				times_eaten;
 	int				total_meals;
 
-	if (episteme->philo_index % 2 == 0)
-		usleep(100);
+	//printf("i: %d, left forkex val: %d\n", episteme->philo_index, episteme->left_forkex->fork);
+	//printf("i: %d, left forkex adress: %p\n", episteme->philo_index, episteme->left_forkex);
+	//printf("i: %d, right forkex val: %d\n", episteme->philo_index, episteme->right_forkex->fork);
+	//printf("i: %d, right forkex adress: %p\n", episteme->philo_index, episteme->right_forkex);
 	last_eaten = 0;
 	if (episteme->philo_args.meal_count >= 0)
 		total_meals = episteme->philo_args.meal_count;
@@ -159,16 +161,20 @@ void	*praxis(
 		//sepeate muteces
 		//seperaete it so theres a mutex per fork
 		int	test[2] = {0, 0};
+		/// uuuuuughhhhh
 		while (test[0] != 1 && test[1] != 1)
 		{
 			pthread_mutex_lock(episteme->left_forkex->mutex);
-			if (episteme->left_forkex->fork == UNUSED)
+			printf("what is value of left fork: %d\n", episteme->left_forkex->fork);
+			if (episteme->left_forkex->fork == UNUSED || 
+	   			|| (episteme->philo_index % 2 != 0 && episteme->left_forkex->fork == NEVER_USED))
 			{
 				episteme->left_forkex->fork = USED;
 				test[0] = 1;
 			}
 			pthread_mutex_unlock(episteme->left_forkex->mutex);
 			pthread_mutex_lock(episteme->right_forkex->mutex);
+			printf("what is value of right fork: %d\n", episteme->right_forkex->fork);
 			if (episteme->right_forkex->fork == UNUSED)
 			{
 				episteme->right_forkex->fork = USED;
@@ -186,7 +192,7 @@ void	*praxis(
 }
 
 int	construct_paradigm(
-	t_thread_data **episteme,
+	t_thread_data *episteme,
 	t_philo_args philo_args,
 	t_forkex *forkexes,
 	unsigned long start_timestamp
@@ -194,19 +200,27 @@ int	construct_paradigm(
 {
 	int	i;
 
-	*episteme = philo_calloc(philo_args.philo_count, sizeof(t_thread_data));
 	i = -1;
 	while (++i < philo_args.philo_count)
 	{
-		(*episteme)[i].philo_args = philo_args;
-		(*episteme)[i].start_timestamp = start_timestamp;
-		(*episteme)[i].left_forkex = &forkexes[i];
+		episteme[i].philo_args = philo_args;
+		episteme[i].start_timestamp = start_timestamp;
+		episteme[i].left_forkex = &forkexes[i];
+//		printf("i: %d, left forkex val: %d\n", i, episteme[i].left_forkex->fork);
 		if (i != philo_args.philo_count - 1)
-			(*episteme)[i].right_forkex = &forkexes[i + 1];
+		{
+			episteme[i].right_forkex = &forkexes[i + 1];
+//			printf("this should happen 3 times\n");
+//			printf("i: %d, right forkex val: %d\n", i, episteme[i].right_forkex->fork);
+		}
 		else
-			(*episteme)[i].right_forkex = &forkexes[0];
-		(*episteme)[i].philo_index = i;
-		(*episteme)[i].start_timestamp = get_start_timestamp(); // this comes later
+		{
+			episteme[i].right_forkex = forkexes;
+//			printf("this should happen 1 time\n");
+//			printf("i: %d, right forkex val: %d\n", i, episteme[i].right_forkex->fork);
+		}
+		episteme[i].philo_index = i;
+		episteme[i].start_timestamp = get_start_timestamp(); // this comes later
 	}
 	return (0);
 }
@@ -222,13 +236,17 @@ int	prepare_simulation(
 	unsigned int	i;
 	unsigned long	start_timestamp;
 
-	philo_threads = philo_calloc(philo_args.philo_count, sizeof(pthread_t));
-	episteme = NULL;
 	start_timestamp = 0;
-	construct_paradigm(&episteme, philo_args, forkexes, start_timestamp);
+	philo_threads = philo_calloc(philo_args.philo_count, sizeof(pthread_t));
+	episteme = philo_calloc(philo_args.philo_count, sizeof(t_thread_data));
+	if (!philo_threads || ! episteme)
+		return (-1);
+	construct_paradigm(episteme, philo_args, forkexes, start_timestamp);
 	i = -1;
 	while (++i < philo_args.philo_count)
+	{
 		pthread_create(&philo_threads[i], NULL, praxis, &episteme[i]);
+	}
 	i = -1;
 	while (++i < philo_args.philo_count)
 		pthread_join(philo_threads[i], NULL);
@@ -239,15 +257,15 @@ int	prepare_simulation(
 
 int	instantiate_subjects_and_objects(
 	t_philo_args philo_args,
-	t_philo *philosophers,
-	t_forkex *forkexes
+	t_philo **philosophers,
+	t_forkex **forkexes
 )
 {
 	int	i;
 
-	philosophers = philo_calloc(philo_args.philo_count, sizeof(t_philo));
-	forkexes = philo_calloc(philo_args.philo_count, sizeof(t_forkex));
-	if (!philosophers || !forkexes)
+	*philosophers = philo_calloc(philo_args.philo_count, sizeof(t_philo));
+	*forkexes = philo_calloc(philo_args.philo_count, sizeof(t_forkex));
+	if (!*philosophers || !*forkexes)
 	{
 		printf("malloc error!\n");
 		return (1);
@@ -255,8 +273,8 @@ int	instantiate_subjects_and_objects(
 	i = -1;
 	while (++i < philo_args.philo_count)
 	{
-		forkexes[i].fork = -1;
-		philosophers[i] = -1;
+		(*forkexes)[i].fork = -1;
+		(*philosophers)[i] = -1;
 	}
 	return (0);
 }
@@ -280,7 +298,7 @@ int	main(
 	pthread_mutex_init(&my_mutex, NULL);
 	philosophers = NULL;
 	forkexes = NULL;
-	instantiate_subjects_and_objects(philo_args, philosophers, forkexes);
+	instantiate_subjects_and_objects(philo_args, &philosophers, &forkexes);
 	TEST_print_args(&philo_args);
 	prepare_simulation(philo_args, philosophers, forkexes);
 	free(philosophers);

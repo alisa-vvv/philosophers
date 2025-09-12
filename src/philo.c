@@ -93,38 +93,51 @@ void	philo_think(
 	printf("%lu philosopher %d is thinking\n", new_timestamp, philo_index);
 }
 
+//optimize all of this
 void	philo_sleep(
+	int	philo_index,
 	unsigned long	start_timestamp,
 	unsigned long	time_to_sleep
 )
 {
 	unsigned long	sleep_start;
 	unsigned long	time_slept;
+	const unsigned long	time_to_sleep_in_ms = time_to_sleep / 1000;
+	const unsigned long	time_to_sleep_tenth = time_to_sleep / 10;
 
-	time_to_sleep /= 1000;
 	sleep_start = get_timestamp_in_ms(start_timestamp);
 	time_slept = get_timestamp_in_ms(start_timestamp) - sleep_start;
+	printf("%lu philosopher %d is sleeping\n", sleep_start, philo_index);
+	//usleep(time_to_sleep);
 	usleep(time_to_sleep / 10 * 9);
-	while (time_slept < time_to_sleep / 1000)
+	while (time_slept < time_to_sleep_in_ms)
 	{
-		usleep(100);
+		usleep(time_to_sleep_tenth);
 		time_slept = get_timestamp_in_ms(start_timestamp) - sleep_start;
 	}
 }
 
 void	philo_eat(
+	unsigned long *last_eaten,
 	int	philo_index,
 	int	time_to_eat,
 	unsigned long start_timestamp
 )
 {
 	unsigned long	new_timestamp;
+	unsigned long	time_eaten;
+	const unsigned long	time_to_eat_in_ms = time_to_eat / 1000;
+	const unsigned long	time_to_eat_tenth = time_to_eat / 10;
 
-	new_timestamp = get_timestamp_in_ms(start_timestamp);
-	printf("%lu philosopher %d is eating\n", new_timestamp, philo_index);
-	usleep(time_to_eat);
-	new_timestamp = get_timestamp_in_ms(start_timestamp);
-	//printf("%lu philosopher %d stopped eating\n", new_timestamp, philo_index);
+	*last_eaten = get_timestamp_in_ms(start_timestamp);
+	time_eaten = get_timestamp_in_ms(start_timestamp) - *last_eaten;
+	printf("%lu philosopher %d is eating\n", *last_eaten, philo_index);
+	usleep(time_to_eat / 10 * 9);
+	while (time_eaten < time_to_eat_in_ms)
+	{
+		usleep(time_to_eat_tenth);
+		time_eaten = get_timestamp_in_ms(start_timestamp) - *last_eaten;
+	}
 	return ;
 }
 
@@ -137,20 +150,22 @@ void	*praxis(
 	unsigned long	last_eaten;
 	int				times_eaten;
 	int				total_meals;
+	int				forks_held;
+	int				philo_state;
 
-	//printf("i: %d, left forkex val: %d\n", episteme->philo_index, episteme->left_forkex->fork);
-	//printf("i: %d, left forkex adress: %p\n", episteme->philo_index, episteme->left_forkex);
-	//printf("i: %d, right forkex val: %d\n", episteme->philo_index, episteme->right_forkex->fork);
-	//printf("i: %d, right forkex adress: %p\n", episteme->philo_index, episteme->right_forkex);
 	last_eaten = 0;
 	if (episteme->philo_args.meal_count >= 0)
 		total_meals = episteme->philo_args.meal_count;
 	else if (episteme->philo_args.meal_count == NO_LIMIT)
 		total_meals = 1;
 	times_eaten = 0;
+	forks_held = 0;
+	philo_state = -1;
 	while (times_eaten < total_meals)
 	{
-		philo_think(episteme->philo_index, episteme->philo_args.time_to_eat, episteme->start_timestamp);
+		if (philo_state != THINKING)	
+			philo_think(episteme->philo_index, episteme->philo_args.time_to_eat, episteme->start_timestamp);
+		philo_state = THINKING;
 		cur_timestamp = get_timestamp_in_ms(episteme->start_timestamp);
 		if (cur_timestamp - last_eaten > episteme->philo_args.time_to_die)
 		{
@@ -158,36 +173,43 @@ void	*praxis(
 			printf("%lu philosopher %d fucking died\n", cur_timestamp, episteme->philo_index);
 			return (NULL);
 		}
-		//sepeate muteces
-		//seperaete it so theres a mutex per fork
-		int	test[2] = {0, 0};
-		/// uuuuuughhhhh
-		while (test[0] != 1 && test[1] != 1)
+		pthread_mutex_lock(&episteme->left_forkex->mutex);
+		if (episteme->left_forkex->fork == UNUSED
+	   			|| (episteme->philo_index % 2 == 0 && episteme->left_forkex->fork == NEVER_USED))
 		{
-			pthread_mutex_lock(episteme->left_forkex->mutex);
-			printf("what is value of left fork: %d\n", episteme->left_forkex->fork);
-			if (episteme->left_forkex->fork == UNUSED || 
-	   			|| (episteme->philo_index % 2 != 0 && episteme->left_forkex->fork == NEVER_USED))
-			{
-				episteme->left_forkex->fork = USED;
-				test[0] = 1;
-			}
-			pthread_mutex_unlock(episteme->left_forkex->mutex);
-			pthread_mutex_lock(episteme->right_forkex->mutex);
-			printf("what is value of right fork: %d\n", episteme->right_forkex->fork);
-			if (episteme->right_forkex->fork == UNUSED)
-			{
-				episteme->right_forkex->fork = USED;
-				test[1] = 1;
-			}
-			pthread_mutex_unlock(episteme->right_forkex->mutex);
+			cur_timestamp = get_timestamp_in_ms(episteme->start_timestamp);
+			printf("%lu philosopher %d took a fork\n", cur_timestamp, episteme->philo_index);
+			episteme->left_forkex->fork = USED;
+			forks_held++;
 		}
-		philo_eat(episteme->philo_index, episteme->philo_args.time_to_eat, episteme->start_timestamp);
-		if (episteme->philo_args.meal_count != NO_LIMIT)
-			times_eaten++;
+		pthread_mutex_unlock(&episteme->left_forkex->mutex);
+		pthread_mutex_lock(&episteme->right_forkex->mutex);
+		if (episteme->right_forkex->fork == UNUSED
+	   			|| (episteme->philo_index % 2 == 0 && episteme->right_forkex->fork == NEVER_USED))
+		{
+			printf("%lu philosopher %d took a fork\n", cur_timestamp, episteme->philo_index);
+			episteme->right_forkex->fork = USED;
+			forks_held++;
+		}
+		pthread_mutex_unlock(&episteme->right_forkex->mutex);
+		if (forks_held == 2)
+		{
+			philo_state = EATING;
+			philo_eat(&last_eaten, episteme->philo_index, episteme->philo_args.time_to_eat, episteme->start_timestamp);
+			pthread_mutex_lock(&episteme->left_forkex->mutex);
+			episteme->left_forkex->fork = UNUSED;
+			pthread_mutex_unlock(&episteme->left_forkex->mutex);
+			pthread_mutex_lock(&episteme->right_forkex->mutex);
+			episteme->right_forkex->fork = UNUSED;
+			pthread_mutex_unlock(&episteme->right_forkex->mutex);
+			forks_held = 0;
+			if (episteme->philo_args.meal_count != NO_LIMIT)
+				times_eaten++;
+			philo_state = SLEEPING;
+			philo_sleep(episteme->philo_index, episteme->start_timestamp, episteme->philo_args.time_to_sleep);
+		}	
 	}
 //	pthread_mutex_unlock(episteme->my_mutex);
-	philo_sleep(episteme->start_timestamp, episteme->philo_args.time_to_sleep);
 	return (0);
 }
 
@@ -274,6 +296,7 @@ int	instantiate_subjects_and_objects(
 	while (++i < philo_args.philo_count)
 	{
 		(*forkexes)[i].fork = -1;
+		pthread_mutex_init(&(*forkexes)[i].mutex, NULL);
 		(*philosophers)[i] = -1;
 	}
 	return (0);
@@ -288,14 +311,12 @@ int	main(
 	t_philo_args	philo_args;
 	t_philo			*philosophers;
 	t_forkex		*forkexes;
-	pthread_mutex_t	my_mutex;
 
 	if (argc != 5 && argc != 6)
 		return (philo_exit(wrong_argc));
 	err_check = set_philo_args(&philo_args,	argv);
 	if (err_check != success)
 		return (philo_exit(err_check));
-	pthread_mutex_init(&my_mutex, NULL);
 	philosophers = NULL;
 	forkexes = NULL;
 	instantiate_subjects_and_objects(philo_args, &philosophers, &forkexes);

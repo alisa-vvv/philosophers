@@ -90,7 +90,7 @@ void	philo_think(
 	unsigned long	new_timestamp;
 
 	new_timestamp = get_timestamp_in_ms(start_timestamp);
-	printf("%lu philosopher %d is thinking\n", new_timestamp, philo_index);
+	printf("%lu philosopher %d is thinking\n", new_timestamp, philo_index + 1);
 }
 
 //optimize all of this
@@ -107,7 +107,7 @@ void	philo_sleep(
 
 	sleep_start = get_timestamp_in_ms(start_timestamp);
 	time_slept = get_timestamp_in_ms(start_timestamp) - sleep_start;
-	printf("%lu philosopher %d is sleeping\n", sleep_start, philo_index);
+	printf("%lu philosopher %d is sleeping\n", sleep_start, philo_index + 1);
 	//usleep(time_to_sleep);
 	usleep(time_to_sleep / 10 * 9);
 	while (time_slept < time_to_sleep_in_ms)
@@ -131,7 +131,7 @@ void	philo_eat(
 
 	*last_eaten = get_timestamp_in_ms(start_timestamp);
 	time_eaten = get_timestamp_in_ms(start_timestamp) - *last_eaten;
-	printf("%lu philosopher %d is eating\n", *last_eaten, philo_index);
+	printf("%lu philosopher %d is eating\n", *last_eaten, philo_index + 1);
 	usleep(time_to_eat / 10 * 9);
 	while (time_eaten < time_to_eat_in_ms)
 	{
@@ -169,8 +169,8 @@ void	*praxis(
 		cur_timestamp = get_timestamp_in_ms(episteme->start_timestamp);
 		if (cur_timestamp - last_eaten > episteme->philo_args.time_to_die)
 		{
-			printf("philosopher %d last eaten: %lu\n", episteme->philo_index, last_eaten);
-			printf("%lu philosopher %d fucking died\n", cur_timestamp, episteme->philo_index);
+			printf("philosopher %d last eaten: %lu\n", episteme->philo_index + 1, last_eaten);
+			printf("%lu philosopher %d fucking died\n", cur_timestamp, episteme->philo_index + 1);
 			return (NULL);
 		}
 		pthread_mutex_lock(&episteme->left_forkex->mutex);
@@ -178,7 +178,7 @@ void	*praxis(
 	   			|| (episteme->philo_index % 2 == 0 && episteme->left_forkex->fork == NEVER_USED))
 		{
 			cur_timestamp = get_timestamp_in_ms(episteme->start_timestamp);
-			printf("%lu philosopher %d took a fork\n", cur_timestamp, episteme->philo_index);
+			printf("%lu philosopher %d took a fork\n", cur_timestamp, episteme->philo_index + 1);
 			episteme->left_forkex->fork = USED;
 			forks_held++;
 		}
@@ -187,7 +187,7 @@ void	*praxis(
 		if (episteme->right_forkex->fork == UNUSED
 	   			|| (episteme->philo_index % 2 == 0 && episteme->right_forkex->fork == NEVER_USED))
 		{
-			printf("%lu philosopher %d took a fork\n", cur_timestamp, episteme->philo_index);
+			printf("%lu philosopher %d took a fork\n", cur_timestamp, episteme->philo_index + 1);
 			episteme->right_forkex->fork = USED;
 			forks_held++;
 		}
@@ -209,7 +209,6 @@ void	*praxis(
 			philo_sleep(episteme->philo_index, episteme->start_timestamp, episteme->philo_args.time_to_sleep);
 		}	
 	}
-//	pthread_mutex_unlock(episteme->my_mutex);
 	return (0);
 }
 
@@ -247,6 +246,13 @@ int	construct_paradigm(
 	return (0);
 }
 
+void	*panopticon(
+	void *data
+)
+{
+	printf("lalala\n");
+	return (NULL);
+}
 int	prepare_simulation(
 	t_philo_args philo_args,
 	t_philo *philosophers,
@@ -254,6 +260,7 @@ int	prepare_simulation(
 )
 {
 	pthread_t		*philo_threads;
+	pthread_t		panopticon_thread;
 	t_thread_data	*episteme;
 	unsigned int	i;
 	unsigned long	start_timestamp;
@@ -266,10 +273,9 @@ int	prepare_simulation(
 	construct_paradigm(episteme, philo_args, forkexes, start_timestamp);
 	i = -1;
 	while (++i < philo_args.philo_count)
-	{
 		pthread_create(&philo_threads[i], NULL, praxis, &episteme[i]);
-	}
 	i = -1;
+	pthread_create(&panopticon_thread, NULL, panopticon, NULL);
 	while (++i < philo_args.philo_count)
 		pthread_join(philo_threads[i], NULL);
 	free(episteme);

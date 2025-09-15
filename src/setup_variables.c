@@ -1,0 +1,91 @@
+// ************************************************************************** //
+//                                                                            //
+//                                                       ::::::::             //
+//   setup_variables.c                                 :+:    :+:             //
+//                                                    +:+                     //
+//   By: avaliull <avaliull@student.codam.nl>        +#+                      //
+//                                                  +#+                       //
+//   Created: 2025/09/15 19:50:28 by avaliull     #+#    #+#                  //
+//   Updated: 2025/09/15 19:53:06 by avaliull     ########   odam.nl          //
+//                                                                            //
+// ************************************************************************** //
+
+#include "philo.h"
+#include <stdio.h>
+
+int	construct_paradigm(
+	t_thread_data *episteme,
+	t_philo *philosophers,
+	t_philo_args philo_args,
+	t_forkex *forkexes
+)
+{
+	int	i;
+
+	i = -1;
+	while (++i < philo_args.philo_count)
+	{
+		episteme[i].philo = &philosophers[i];
+		episteme[i].philo_args = philo_args;
+		episteme[i].philo_args = philo_args;
+		episteme[i].left_forkex = &forkexes[i];
+		if (i != philo_args.philo_count - 1)
+			episteme[i].right_forkex = &forkexes[i + 1];
+		else
+			episteme[i].right_forkex = forkexes;
+		episteme[i].philo_index = i;
+		episteme[i].start_timestamp = get_start_timestamp(); // this comes later
+	}
+	return (0);
+}
+
+int	instantiate_subjects_and_objects(
+	t_philo_args philo_args,
+	t_philo **philosophers,
+	t_forkex **forkexes
+)
+{
+	int	i;
+
+	*philosophers = philo_calloc(philo_args.philo_count, sizeof(t_philo));
+	*forkexes = philo_calloc(philo_args.philo_count, sizeof(t_forkex));
+	if (!*philosophers || !*forkexes)
+	{
+		printf("malloc error!\n");
+		return (1);
+	}
+	i = -1;
+	while (++i < philo_args.philo_count)
+	{
+		(*forkexes)[i].fork = -1;
+		pthread_mutex_init(&(*forkexes)[i].mutex, NULL);
+		(*philosophers)[i] = -1;
+	}
+	return (0);
+}
+
+t_philo_errno	set_philo_args(
+	t_philo_args *args,
+	char **argv
+)
+{
+	args->philo_count = philo_atoi((unsigned char *) argv[1]);
+	args->time_to_die = philo_atoi((unsigned char *) argv[2]);
+	args->time_to_eat = philo_atoi((unsigned char *) argv[3]);
+	args->time_to_sleep = philo_atoi((unsigned char *) argv[4]);
+	if (args->time_to_die <= 0 || args->time_to_eat <= 0
+		|| args->time_to_sleep <= 0)
+	 	return (invalid_argument);
+	//args->time_to_die *= 1000;
+	args->time_to_eat *= 1000;
+	args->time_to_sleep *= 1000;
+	if (argv[5])
+	{
+		args->meal_count = philo_atoi((unsigned char *) argv[5]);
+		if (args->meal_count <= 0)
+	 		return (invalid_argument);
+	}
+	else
+		args->meal_count = NO_LIMIT;
+	return (success);
+}

@@ -6,7 +6,7 @@
 #    By: avaliull <avaliull@student.codam.nl>        +#+                       #
 #                                                   +#+                        #
 #    Created: 2025/05/21 19:45:55 by avaliull     #+#    #+#                   #
-#    Updated: 2025/05/30 15:43:02 by avaliull     ########   odam.nl           #
+#    Updated: 2025/09/15 19:54:21 by avaliull     ########   odam.nl           #
 #                                                                              #
 # **************************************************************************** #
 
@@ -14,6 +14,10 @@
 
 NAME	=	philo
 CFILES	=	philo.c\
+			philo_states.c\
+			time_tracking.c\
+			fork_management.c\
+			setup_variables.c\
 			utils.c\
 			exit.c\
 			test_funcs.c

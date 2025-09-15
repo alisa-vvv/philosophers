@@ -59,6 +59,7 @@ typedef struct	s_forkex
 typedef struct	s_thread_data
 {
 	t_philo_args	philo_args;
+	t_philo			*philo;
 	int 			philo_index;
 	t_forkex		*left_forkex;
 	t_forkex		*right_forkex;

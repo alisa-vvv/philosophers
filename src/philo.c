@@ -76,19 +76,22 @@ int	prepare_simulation(
 	t_forkex *forkexes
 )
 {
+	bool			simulation_started;
 	pthread_t		*philo_threads;
 	pthread_t		panopticon_thread;
 	t_thread_data	*episteme;
+	t_thread_data	tracking;
 	unsigned int	i;
 	unsigned long	start_timestamp;
 
+	simulation_started = false;
 	start_timestamp = 0;
 	philo_threads = philo_calloc(philo_args.philo_count, sizeof(pthread_t));
 	episteme = philo_calloc(philo_args.philo_count, sizeof(t_thread_data));
 	if (!philo_threads || !episteme)
 		return (-1);
 	construct_paradigm(episteme, philosophers, philo_args, forkexes);
-	pthread_create(&panopticon_thread, NULL, panopticon, NULL);
+	pthread_create(&panopticon_thread, NULL, panopticon, &tracking);
 	i = -1;
 	while (++i < philo_args.philo_count)
 		pthread_create(&philo_threads[i], NULL, praxis, &episteme[i]);

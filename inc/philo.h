@@ -57,6 +57,53 @@ typedef struct	s_forkex
 	pthread_mutex_t	mutex;
 }	t_forkex;
 
+// for future message buffer integration
+typedef enum	e_msg_type
+{
+	MSG_NULL = 0,
+	MSG_THINK = 1,
+	MSG_FORK = 2,
+	MSG_EAT = 3,
+	MSG_SLEEP = 4,
+	MSG_DEAD = 5,
+	DONE_EATING = 6,
+}	t_msg_type;
+
+typedef struct	s_panopticon_data
+{
+	int	philo_count;
+	int	meal_count;
+}	t_panopticon_data;
+
+typedef struct	s_msg_buf
+{
+	// when a philo's state changes, it should mutex lock this
+	// then update last_free_index
+	// last free index should loop around to 0 if max is reached
+	// then mutex unlock the variable
+	// then mutex lock the section it's currenty writing to
+	// then write its changed values to previous last_free_index
+	// then mutex unlock it
+	// 
+	// panopticon thread will iteratively check for new variables
+	// probably with some usleeping in between
+	// transform them into an actual message on the message array
+	// then check if (some arbitrary small timeframe) has passed
+	// then write the whole array
+	// then memset it to 0
+	// them mutex lock all that is before last_free_index
+	// then memset all arrays to 0 up until current last_free_index
+	// unlock
+	// keep going forever
+	int				philo_index[1024];
+	int				last_free_index;
+	unsigned long	timestamp[1024];
+	t_msg_type		msg_type[1024];
+}	t_msg_buf;
+
+//char	messsage_arr[4096];
+//
+
 typedef struct	s_thread_data
 {
 	t_philo_args	philo_args;

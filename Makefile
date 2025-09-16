@@ -82,6 +82,9 @@ re:	fclean all
 clangd:
 	$(MAKE) fclean
 	intercept-build-14 $(MAKE)
+bear:
+	$(MAKE) fclean
+	bear -- $(MAKE)
 
 #debugging
 debug: CPPFLAGS += -g

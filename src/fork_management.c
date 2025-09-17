@@ -22,7 +22,7 @@ void	take_a_fork(
 	unsigned long	cur_timestamp;
 
 	if (forkex->fork == UNUSED
-			|| (episteme->philo_index % 2 == 0 && forkex->fork == NEVER_USED))
+			|| (forkex->fork == NEVER_USED && episteme->philo_index % 2 == 0))
 	{
 		forkex->fork = USED;
 		(*forks_held)++;

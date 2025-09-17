@@ -24,12 +24,9 @@ void	*praxis(
 	int				total_meals;
 	int				forks_held;
 
-	printf("when?\n");
 	pthread_mutex_lock(episteme->start->mutex);
-	if (episteme->start->ready == true)
-		episteme->start_timestamp = episteme->start->timestamp;
+	episteme->start_timestamp = episteme->start->timestamp;
 	pthread_mutex_unlock(episteme->start->mutex);
-	printf("when2?\n");
 	last_eaten = 0; // this should be a shared variable in episteme
 	if (episteme->philo_args.meal_count >= 0)
 		total_meals = episteme->philo_args.meal_count;
@@ -76,7 +73,7 @@ void	*panopticon(
 
 	pthread_mutex_lock(panopticon_data->start->mutex);
 	if (panopticon_data->start->ready == true)
-		;
+		panopticon_data->start_timestamp = panopticon_data->start->timestamp;
 	pthread_mutex_unlock(panopticon_data->start->mutex);
 	printf("PANOPTICON.\n");
 	return (NULL);

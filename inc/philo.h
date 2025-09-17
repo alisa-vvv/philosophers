@@ -73,11 +73,11 @@ typedef enum	e_msg_type
 typedef struct	s_msg_info
 {
 	// when a philo's state changes, it should mutex lock this
-	// then update last_free_index
+	// then update first_free_index
 	// last free index should loop around to 0 if max is reached
 	// then mutex unlock the variable
 	// then mutex lock the section it's currenty writing to
-	// then write its changed values to previous last_free_index
+	// then write its changed values to previous first_free_index
 	// then mutex unlock it
 	// 
 	// panopticon thread will iteratively check for new variables
@@ -86,14 +86,18 @@ typedef struct	s_msg_info
 	// then check if (some arbitrary small timeframe) has passed
 	// then write the whole array
 	// then memset it to 0
-	// them mutex lock all that is before last_free_index
-	// then memset all arrays to 0 up until current last_free_index
+	// them mutex lock all that is before first_free_index
+	// then memset all arrays to 0 up until current first_free_index
 	// unlock
 	// keep going forever
 	t_msg_type		msg_type[1024];
+	pthread_mutex_t	msg_type_mutex;
 	unsigned long	timestamp[1024];
+	pthread_mutex_t	timestamp_mutex;
 	int				philo_index[1024];
-	int				last_free_index;
+	pthread_mutex_t	philo_index_mutex;
+	int				first_free_index;
+	pthread_mutex_t	first_free_index_mutex;
 }	t_msg_info;
 
 
@@ -109,11 +113,11 @@ typedef struct	s_start
 
 typedef struct	s_panopticon_data
 {
-	t_msg_info			*msg_info;
-	t_start				*start;
+	t_msg_info		*msg_info;
+	t_start			*start;
 	unsigned long	start_timestamp;
-	int					philo_count;
-	int					meal_count;
+	int				philo_count;
+	int				meal_count;
 }	t_panopticon_data;
 
 
@@ -124,6 +128,7 @@ typedef struct	s_thread_data
 	t_forkex		*left_forkex;
 	t_forkex		*right_forkex;
 	t_philo			*philo;
+	t_msg_info		*msg_info;
 	unsigned long	start_timestamp;
 	int 			philo_index;
 }	t_thread_data;
@@ -135,10 +140,8 @@ void	philo_think(
 );
 
 void	philo_sleep(
-	int	philo_index,
-	t_philo	*philo,
-	unsigned long start_timestamp,
-	unsigned long time_to_sleep
+	t_thread_data *episteme,
+	int philo_index
 );
 
 void	philo_eat(
@@ -170,11 +173,19 @@ unsigned long	get_start_timestamp(
 unsigned long	get_timestamp_in_ms(
 	unsigned long	start_timestamp
 );
+
+void	log_action(
+	int philo_index,
+	t_msg_type msg_type,
+	t_msg_info *msg_info,
+	unsigned long timestamp
+);
 /*	endof Timestamping		*/
 
 /*		Variable setup		*/
 int	construct_paradigm(
 	t_thread_data *episteme,
+	t_msg_info *msg_info,
 	t_philo *philosophers,
 	t_philo_args philo_args,
 	t_forkex *forkexes,

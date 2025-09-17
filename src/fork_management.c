@@ -11,7 +11,6 @@
 // ************************************************************************** //
 
 #include "philo.h"
-#include <stdio.h>
 
 void	take_a_fork(
 	t_thread_data *episteme,
@@ -19,7 +18,7 @@ void	take_a_fork(
 	int *forks_held
 )
 {
-	unsigned long	cur_timestamp;
+	unsigned long	timestamp;
 
 	if (forkex->fork == UNUSED
 			|| (forkex->fork == NEVER_USED && episteme->philo_index % 2 == 0))
@@ -27,9 +26,8 @@ void	take_a_fork(
 		forkex->fork = USED;
 		(*forks_held)++;
 		pthread_mutex_unlock(&forkex->mutex);
-		cur_timestamp = get_timestamp_in_ms(episteme->start_timestamp);
-		printf("%lu philosopher %d took a fork\n",
-			cur_timestamp, episteme->philo_index + 1);
+		timestamp = get_timestamp_in_ms(episteme->start_timestamp);
+		log_action(episteme->philo_index, MSG_FORK, episteme->msg_info, timestamp);
 	}
 	else
 		pthread_mutex_unlock(&forkex->mutex);
@@ -40,9 +38,6 @@ void	find_free_forks(
 	int	*forks_held
 )
 {
-	unsigned long	cur_timestamp;
-
-	cur_timestamp = get_timestamp_in_ms(episteme->start_timestamp);
 	pthread_mutex_lock(&episteme->left_forkex->mutex);
 	take_a_fork(episteme, episteme->left_forkex, forks_held);
 	pthread_mutex_lock(&episteme->right_forkex->mutex);

@@ -44,8 +44,7 @@ void	*praxis(
 		cur_timestamp = get_timestamp_in_ms(episteme->start_timestamp);
 		if (cur_timestamp - last_eaten > episteme->philo_args.time_to_die)
 		{
-			printf("philosopher %d last eaten: %lu\n", episteme->philo_index + 1, last_eaten);
-			printf("%lu philosopher %d fucking died\n", cur_timestamp, episteme->philo_index + 1);
+			log_action(episteme->philo_index, MSG_DEAD, episteme->msg_info, cur_timestamp);
 			return (NULL);
 		}
 		/*	*/
@@ -56,10 +55,7 @@ void	*praxis(
 			philo_eat(episteme, &last_eaten, episteme->philo_index, &forks_held);
 			if (episteme->philo_args.meal_count != NO_LIMIT)
 				times_eaten++;
-			philo_sleep(episteme->philo_index, episteme->philo,
-			   episteme->start_timestamp, episteme->philo_args.time_to_sleep);
-			// replace wit hjsut passign episteme
-			// why though
+			philo_sleep(episteme, episteme->philo_index);
 		}	
 	}
 	return (0);
@@ -70,12 +66,55 @@ void	*panopticon(
 )
 {
 	t_panopticon_data	*const panopticon_data = (t_panopticon_data *) data;
+	int					i;
+	int					first_free_index;
+	char				message_buffer[4096];
 
+	printf("PANOPTICON.\n");
+	first_free_index = 0;
 	pthread_mutex_lock(panopticon_data->start->mutex);
 	if (panopticon_data->start->ready == true)
 		panopticon_data->start_timestamp = panopticon_data->start->timestamp;
 	pthread_mutex_unlock(panopticon_data->start->mutex);
-	printf("PANOPTICON.\n");
+
+	t_msg_type		msg_type_local;
+	unsigned long	timestamp_local;
+	int				philo_index_local;
+
+	i = 0;
+	while (1)
+	{
+		usleep(500);
+		pthread_mutex_lock(&panopticon_data->msg_info->first_free_index_mutex);
+		first_free_index = panopticon_data->msg_info->first_free_index;
+		pthread_mutex_unlock(&panopticon_data->msg_info->first_free_index_mutex);
+		while (i < first_free_index)
+		{
+			pthread_mutex_lock(&panopticon_data->msg_info->msg_type_mutex);
+			msg_type_local = panopticon_data->msg_info->msg_type[i];
+			pthread_mutex_unlock(&panopticon_data->msg_info->msg_type_mutex);
+			pthread_mutex_lock(&panopticon_data->msg_info->timestamp_mutex);
+			timestamp_local = panopticon_data->msg_info->timestamp[i];
+			pthread_mutex_unlock(&panopticon_data->msg_info->timestamp_mutex);
+			pthread_mutex_lock(&panopticon_data->msg_info->philo_index_mutex);
+			philo_index_local = panopticon_data->msg_info->philo_index[i];
+			pthread_mutex_unlock(&panopticon_data->msg_info->philo_index_mutex);
+			if (msg_type_local == MSG_DEAD)
+			{
+				printf("%lu philosopher %d fucking died\n", timestamp_local, philo_index_local + 1);
+				return (NULL);
+			}	
+			else if (msg_type_local == MSG_THINK)
+				printf("%lu philosopher %d is thinking\n", timestamp_local, philo_index_local + 1);
+			else if (msg_type_local == MSG_FORK)
+				printf("%lu philosopher %d took a fork\n", timestamp_local, philo_index_local + 1);
+			else if (msg_type_local == MSG_EAT)
+				printf("%lu philosopher %d is eating\n", timestamp_local, philo_index_local + 1);
+			else if (msg_type_local == MSG_SLEEP)
+				printf("%lu philosopher %d is sleeping\n", timestamp_local, philo_index_local + 1);
+			i++;
+		}
+	}
 	return (NULL);
 }
 
@@ -87,9 +126,13 @@ void	prepare_surveillance_data(
 )
 {
 	memset(msg_info->msg_type, 0, 1024);
+	pthread_mutex_init(&msg_info->msg_type_mutex, NULL);
 	memset(msg_info->timestamp, 0, 1024);
+	pthread_mutex_init(&msg_info->timestamp_mutex, NULL);
 	memset(msg_info->philo_index, 0, 1024);
-	msg_info->last_free_index = 0;
+	pthread_mutex_init(&msg_info->philo_index_mutex, NULL);
+	msg_info->first_free_index = 0;
+	pthread_mutex_init(&msg_info->first_free_index_mutex, NULL);
 	panopticon_data->msg_info = msg_info;
 	panopticon_data->philo_count = philo_args.philo_count;
 	panopticon_data->meal_count = philo_args.meal_count;
@@ -119,8 +162,8 @@ int	prepare_simulation(
 	episteme = philo_calloc(philo_args.philo_count, sizeof(t_thread_data));
 	if (!philo_threads || !episteme)
 		return (-1);
-	construct_paradigm(episteme, philosophers, philo_args, forkexes, &start);
 	prepare_surveillance_data(&panopticon_data, &msg_info, philo_args, &start);
+	construct_paradigm(episteme, &msg_info, philosophers, philo_args, forkexes, &start);
 	pthread_mutex_lock(start.mutex);
 	pthread_create(&panopticon_thread, NULL, panopticon, &panopticon_data);
 	i = -1;

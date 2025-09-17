@@ -19,37 +19,33 @@ void	philo_think(
 	t_thread_data *episteme
 )
 {
-	unsigned long	new_timestamp;
+	unsigned long	timestamp;
 
 	*episteme->philo = THINKING;
-	new_timestamp = get_timestamp_in_ms(episteme->start_timestamp);
-	printf("%lu philosopher %d is thinking\n",
-		new_timestamp, episteme->philo_index + 1);
+	timestamp = get_timestamp_in_ms(episteme->start_timestamp);
+	log_action(episteme->philo_index, MSG_THINK, episteme->msg_info, timestamp);
 }
 
 //optimize all of this
 void	philo_sleep(
-	int	philo_index,
-	t_philo	*philo,
-	unsigned long start_timestamp,
-	unsigned long time_to_sleep
+	t_thread_data *episteme,
+	int philo_index
 )
 {
 	unsigned long	sleep_start;
 	unsigned long	time_slept;
-	const unsigned long	time_to_sleep_in_ms = time_to_sleep / 1000;
-	const unsigned long	time_to_sleep_tenth = time_to_sleep / 100;
+	const unsigned long	time_to_sleep_in_ms = episteme->philo_args.time_to_sleep / 1000;
 
-	*philo = SLEEPING;
-	sleep_start = get_timestamp_in_ms(start_timestamp);
-	time_slept = get_timestamp_in_ms(start_timestamp) - sleep_start;
-	printf("%lu philosopher %d is sleeping\n", sleep_start, philo_index + 1);
-	usleep(time_to_sleep / 2);
+	*episteme->philo = SLEEPING;
+	sleep_start = get_timestamp_in_ms(episteme->start_timestamp);
+	time_slept = get_timestamp_in_ms(episteme->start_timestamp) - sleep_start;
+	log_action(philo_index, MSG_SLEEP, episteme->msg_info, sleep_start);
+	usleep(episteme->philo_args.time_to_sleep / 2);
 	//usleep(time_to_sleep_tenth * 9);
 	while (time_slept < time_to_sleep_in_ms)
 	{
 		usleep(50);
-		time_slept = get_timestamp_in_ms(start_timestamp) - sleep_start;
+		time_slept = get_timestamp_in_ms(episteme->start_timestamp) - sleep_start;
 	}
 }
 
@@ -69,9 +65,9 @@ void	philo_eat(
 	//const unsigned long	time_to_eat_tenth = episteme->philo_args.time_to_eat / 100;
 
 	*last_eaten = get_timestamp_in_ms(episteme->start_timestamp);
+	log_action(philo_index, MSG_EAT, episteme->msg_info, *last_eaten);
 	*episteme->philo = EATING;
 	time_eaten = 0;
-	printf("%lu philosopher %d is eating\n", *last_eaten, philo_index + 1);
 	usleep(episteme->philo_args.time_to_eat / 2);
 	//usleep(time_to_eat_tenth * 9);
 	while (time_eaten < time_to_eat_in_ms)
@@ -79,12 +75,15 @@ void	philo_eat(
 		usleep(50);
 		time_eaten = get_timestamp_in_ms(start_timestamp) - *last_eaten;
 	}
-	pthread_mutex_lock(&episteme->left_forkex->mutex);
-	episteme->left_forkex->fork = UNUSED;
-	pthread_mutex_unlock(&episteme->left_forkex->mutex);
+	// will changing up order here matter?
+	// right fork is the one that the other philo is supposed to take first
+	// maybe this will reduce some delays?
 	pthread_mutex_lock(&episteme->right_forkex->mutex);
 	episteme->right_forkex->fork = UNUSED;
 	pthread_mutex_unlock(&episteme->right_forkex->mutex);
+	pthread_mutex_lock(&episteme->left_forkex->mutex);
+	episteme->left_forkex->fork = UNUSED;
+	pthread_mutex_unlock(&episteme->left_forkex->mutex);
 	*forks_held = 0;
 	return ;
 }

@@ -15,6 +15,7 @@
 
 int	construct_paradigm(
 	t_thread_data *episteme,
+	t_msg_info *msg_info,
 	t_philo *philosophers,
 	t_philo_args philo_args,
 	t_forkex *forkexes,
@@ -27,8 +28,8 @@ int	construct_paradigm(
 	while (++i < philo_args.philo_count)
 	{
 		episteme[i].start = start;
+		episteme[i].msg_info = msg_info;
 		episteme[i].philo = &philosophers[i];
-		episteme[i].philo_args = philo_args;
 		episteme[i].philo_args = philo_args;
 		episteme[i].left_forkex = &forkexes[i];
 		if (i != philo_args.philo_count - 1)

@@ -82,6 +82,7 @@ void	*panopticon(
 	int				philo_index_local;
 
 	i = 0;
+	// DONT FORGET TO IMPLEMENT WRAP AROUND FOR THIS.
 	while (1)
 	{
 		usleep(500);
@@ -92,12 +93,15 @@ void	*panopticon(
 		{
 			pthread_mutex_lock(&panopticon_data->msg_info->msg_type_mutex);
 			msg_type_local = panopticon_data->msg_info->msg_type[i];
+			panopticon_data->msg_info->msg_type[i] = 0;
 			pthread_mutex_unlock(&panopticon_data->msg_info->msg_type_mutex);
 			pthread_mutex_lock(&panopticon_data->msg_info->timestamp_mutex);
 			timestamp_local = panopticon_data->msg_info->timestamp[i];
+			panopticon_data->msg_info->timestamp[i] = 0;
 			pthread_mutex_unlock(&panopticon_data->msg_info->timestamp_mutex);
 			pthread_mutex_lock(&panopticon_data->msg_info->philo_index_mutex);
 			philo_index_local = panopticon_data->msg_info->philo_index[i];
+			panopticon_data->msg_info->philo_index[i] = 0;
 			pthread_mutex_unlock(&panopticon_data->msg_info->philo_index_mutex);
 			if (msg_type_local == MSG_DEAD)
 			{

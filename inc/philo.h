@@ -15,6 +15,7 @@
 
 # include <unistd.h>
 # include <pthread.h>
+# include <stdbool.h>
 
 # define SECOND 1000000
 # define MILLISECOND 1000
@@ -69,13 +70,7 @@ typedef enum	e_msg_type
 	DONE_EATING = 6,
 }	t_msg_type;
 
-typedef struct	s_panopticon_data
-{
-	int	philo_count;
-	int	meal_count;
-}	t_panopticon_data;
-
-typedef struct	s_msg_buf
+typedef struct	s_msg_info
 {
 	// when a philo's state changes, it should mutex lock this
 	// then update last_free_index
@@ -95,23 +90,42 @@ typedef struct	s_msg_buf
 	// then memset all arrays to 0 up until current last_free_index
 	// unlock
 	// keep going forever
+	t_msg_type		msg_type[1024];
+	unsigned long	timestamp[1024];
 	int				philo_index[1024];
 	int				last_free_index;
-	unsigned long	timestamp[1024];
-	t_msg_type		msg_type[1024];
-}	t_msg_buf;
+}	t_msg_info;
+
 
 //char	messsage_arr[4096];
 //
 
+typedef struct	s_start
+{
+	unsigned long	timestamp;
+	bool			ready;
+	pthread_mutex_t	*mutex;
+}	t_start;
+
+typedef struct	s_panopticon_data
+{
+	t_msg_info			*msg_info;
+	t_start				*start;
+	unsigned long	start_timestamp;
+	int					philo_count;
+	int					meal_count;
+}	t_panopticon_data;
+
+
 typedef struct	s_thread_data
 {
 	t_philo_args	philo_args;
-	t_philo			*philo;
-	int 			philo_index;
+	t_start			*start;
 	t_forkex		*left_forkex;
 	t_forkex		*right_forkex;
+	t_philo			*philo;
 	unsigned long	start_timestamp;
+	int 			philo_index;
 }	t_thread_data;
 
 
@@ -163,7 +177,8 @@ int	construct_paradigm(
 	t_thread_data *episteme,
 	t_philo *philosophers,
 	t_philo_args philo_args,
-	t_forkex *forkexes
+	t_forkex *forkexes,
+	t_start *start
 );
 
 int	instantiate_subjects_and_objects(

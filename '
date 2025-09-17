@@ -24,12 +24,8 @@ void	*praxis(
 	int				total_meals;
 	int				forks_held;
 
-	printf("when?\n");
-	pthread_mutex_lock(episteme->start->mutex);
-	if (episteme->start->ready == true)
-		episteme->start_timestamp = episteme->start->timestamp;
-	pthread_mutex_unlock(episteme->start->mutex);
-	printf("when2?\n");
+	if (episteme->start->ready)
+		;
 	last_eaten = 0; // this should be a shared variable in episteme
 	if (episteme->philo_args.meal_count >= 0)
 		total_meals = episteme->philo_args.meal_count;
@@ -74,10 +70,8 @@ void	*panopticon(
 {
 	t_panopticon_data	*const panopticon_data = (t_panopticon_data *) data;
 
-	pthread_mutex_lock(panopticon_data->start->mutex);
-	if (panopticon_data->start->ready == true)
+	if (panopticon_data->simulation_started)
 		;
-	pthread_mutex_unlock(panopticon_data->start->mutex);
 	printf("PANOPTICON.\n");
 	return (NULL);
 }
@@ -86,7 +80,7 @@ void	prepare_surveillance_data(
 	t_panopticon_data *panopticon_data,
 	t_msg_info *msg_info,
 	t_philo_args philo_args,
-	t_start *start
+	pthread_mutex_t *simulation_started
 )
 {
 	memset(msg_info->msg_type, 0, 1024);
@@ -96,7 +90,7 @@ void	prepare_surveillance_data(
 	panopticon_data->msg_info = msg_info;
 	panopticon_data->philo_count = philo_args.philo_count;
 	panopticon_data->meal_count = philo_args.meal_count;
-	panopticon_data->start = start;
+	panopticon_data->simulation_started = simulation_started;
 }
 
 int	prepare_simulation(
@@ -106,35 +100,31 @@ int	prepare_simulation(
 )
 {
 	t_start				start;
-	pthread_mutex_t		start_mutex;
 	pthread_t			*philo_threads;
 	pthread_t			panopticon_thread;
 	t_thread_data		*episteme;
 	t_msg_info			msg_info;
 	t_panopticon_data	panopticon_data;
 	unsigned int		i;
+	unsigned long		start_timestamp;
 
-	pthread_mutex_init(&start_mutex, NULL);
-	start.ready = false;
-	start.timestamp = 0;
-	start.mutex = &start_mutex;
+	pthread_mutex_init(start.mutex, NULL);
+	start_timestamp = 0;
 	philo_threads = philo_calloc(philo_args.philo_count, sizeof(pthread_t));
 	episteme = philo_calloc(philo_args.philo_count, sizeof(t_thread_data));
 	if (!philo_threads || !episteme)
 		return (-1);
-	construct_paradigm(episteme, philosophers, philo_args, forkexes, &start);
-	prepare_surveillance_data(&panopticon_data, &msg_info, philo_args, &start);
+	construct_paradigm(episteme, philosophers, philo_args, forkexes);
+	prepare_surveillance_data(&panopticon_data, &msg_info, philo_args, &simulation_started);
 	pthread_mutex_lock(start.mutex);
 	pthread_create(&panopticon_thread, NULL, panopticon, &panopticon_data);
 	i = -1;
 	while (++i < philo_args.philo_count)
 		pthread_create(&philo_threads[i], NULL, praxis, &episteme[i]);
 	i = -1;
-	start.ready = true;
-	start.timestamp = get_start_timestamp();
-	pthread_mutex_unlock(start.mutex);
 	while (++i < philo_args.philo_count)
 		pthread_join(philo_threads[i], NULL);
+	pthread_mutex_unlock(&simulation_started);
 	free(episteme);
 	free(philo_threads);
 	return (0);

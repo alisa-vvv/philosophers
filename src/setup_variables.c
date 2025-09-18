@@ -30,7 +30,11 @@ int	construct_paradigm(
 		episteme[i].start = start;
 		episteme[i].msg_info = msg_info;
 		episteme[i].philo = &philosophers[i];
-		episteme[i].philo_args = philo_args;
+		episteme[i].philo_count = philo_args.philo_count;
+		episteme[i].time_to_die = philo_args.time_to_die;
+		episteme[i].time_to_eat = philo_args.time_to_eat;
+		episteme[i].time_to_sleep = philo_args.time_to_sleep;
+		episteme[i].meal_count = philo_args.meal_count;
 		episteme[i].left_forkex = &forkexes[i];
 		if (i != philo_args.philo_count - 1)
 			episteme[i].right_forkex = &forkexes[i + 1];
@@ -43,25 +47,25 @@ int	construct_paradigm(
 
 int	instantiate_subjects_and_objects(
 	t_philo_args philo_args,
-	t_philo **philosophers,
-	t_forkex **forkexes
+	t_philo *philosophers,
+	t_forkex *forkexes
 )
 {
 	int	i;
 
-	*philosophers = philo_calloc(philo_args.philo_count, sizeof(t_philo));
-	*forkexes = philo_calloc(philo_args.philo_count, sizeof(t_forkex));
-	if (!*philosophers || !*forkexes)
-	{
-		printf("malloc error!\n");
-		return (1);
-	}
+	//*philosophers = philo_calloc(philo_args.philo_count, sizeof(t_philo));
+	//*forkexes = philo_calloc(philo_args.philo_count, sizeof(t_forkex));
+	//if (!*philosophers || !*forkexes)
+	//{
+	//	printf("malloc error!\n");
+	//	return (1);
+	//}
 	i = -1;
 	while (++i < philo_args.philo_count)
 	{
-		(*forkexes)[i].fork = -1;
-		pthread_mutex_init(&(*forkexes)[i].mutex, NULL);
-		(*philosophers)[i] = -1;
+		forkexes[i].fork = -1;
+		pthread_mutex_init(&forkexes[i].mutex, NULL);
+		philosophers[i] = -1;
 	}
 	return (0);
 }

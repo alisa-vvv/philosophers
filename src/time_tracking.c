@@ -25,7 +25,11 @@ void	log_action(
 
 	pthread_mutex_lock(&msg_info->first_free_index_mutex);
 	msg_index = msg_info->first_free_index;
-	msg_info->first_free_index += 1;
+	if (msg_info->first_free_index == LOG_BUF_MAX - 1)
+		msg_info->first_free_index = 0;
+	else
+		msg_info->first_free_index += 1;
+	//printf("msg_info->first_free_index after log: %d\n", msg_info->first_free_index);
 	pthread_mutex_unlock(&msg_info->first_free_index_mutex);
 	pthread_mutex_lock(&msg_info->msg_type_mutex);
 	msg_info->msg_type[msg_index] = msg_type;

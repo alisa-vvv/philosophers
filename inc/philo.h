@@ -20,6 +20,9 @@
 # define SECOND 1000000
 # define MILLISECOND 1000
 # define NO_LIMIT -1
+# define PHILO_BUF_MAX 1024
+# define MSG_BUF_MAX 4096
+# define LOG_BUF_MAX 2048
 
 typedef	enum e_philo_errno
 {
@@ -72,29 +75,11 @@ typedef enum	e_msg_type
 
 typedef struct	s_msg_info
 {
-	// when a philo's state changes, it should mutex lock this
-	// then update first_free_index
-	// last free index should loop around to 0 if max is reached
-	// then mutex unlock the variable
-	// then mutex lock the section it's currenty writing to
-	// then write its changed values to previous first_free_index
-	// then mutex unlock it
-	// 
-	// panopticon thread will iteratively check for new variables
-	// probably with some usleeping in between
-	// transform them into an actual message on the message array
-	// then check if (some arbitrary small timeframe) has passed
-	// then write the whole array
-	// then memset it to 0
-	// them mutex lock all that is before first_free_index
-	// then memset all arrays to 0 up until current first_free_index
-	// unlock
-	// keep going forever
-	t_msg_type		msg_type[1024];
+	t_msg_type		msg_type[LOG_BUF_MAX];
 	pthread_mutex_t	msg_type_mutex;
-	unsigned long	timestamp[1024];
+	unsigned long	timestamp[LOG_BUF_MAX];
 	pthread_mutex_t	timestamp_mutex;
-	int				philo_index[1024];
+	int				philo_index[LOG_BUF_MAX];
 	pthread_mutex_t	philo_index_mutex;
 	int				first_free_index;
 	pthread_mutex_t	first_free_index_mutex;
@@ -123,7 +108,12 @@ typedef struct	s_panopticon_data
 
 typedef struct	s_thread_data
 {
-	t_philo_args	philo_args;
+	//t_philo_args	philo_args;
+	unsigned long	philo_count;
+	unsigned long	time_to_die;
+	unsigned long	time_to_eat;
+	unsigned long	time_to_sleep;
+	int				meal_count;
 	t_start			*start;
 	t_forkex		*left_forkex;
 	t_forkex		*right_forkex;
@@ -194,8 +184,8 @@ int	construct_paradigm(
 
 int	instantiate_subjects_and_objects(
 	t_philo_args philo_args,
-	t_philo **philosophers,
-	t_forkex **forkexes
+	t_philo *philosophers,
+	t_forkex *forkexes
 );
 
 t_philo_errno	set_philo_args(

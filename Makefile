@@ -6,7 +6,7 @@
 #    By: avaliull <avaliull@student.codam.nl>        +#+                       #
 #                                                   +#+                        #
 #    Created: 2025/05/21 19:45:55 by avaliull     #+#    #+#                   #
-#    Updated: 2025/09/15 19:54:21 by avaliull     ########   odam.nl           #
+#    Updated: 2025/09/19 16:28:52 by avaliull     ########   odam.nl           #
 #                                                                              #
 # **************************************************************************** #
 
@@ -16,6 +16,7 @@ NAME	=	philo
 CFILES	=	philo.c\
 			philo_states.c\
 			time_tracking.c\
+			panopticon.c\
 			fork_management.c\
 			setup_variables.c\
 			utils.c\
@@ -52,7 +53,7 @@ CPPFLAGS	= $(INCFLAGS) -MMD -MP
 
 INCFLAGS	= $(addprefix -I,$(INCLUDE))
 CFLAGS	= -Wall -Wextra -Werror -fsanitize=undefined
-INPUT	= 4 300 100 100 300
+INPUT	= 200 3000 200 200
 
 
 -include $(OFILES:.o=.d)

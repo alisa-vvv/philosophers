@@ -73,6 +73,14 @@ typedef enum	e_msg_type
 	DONE_EATING = 6,
 }	t_msg_type;
 
+typedef struct	s_msg_info_local
+{
+	t_msg_type		msg_type;
+	unsigned long	timestamp;
+	int				philo_index;
+	int				first_free_index;
+}	t_msg_info_local;
+
 typedef struct	s_msg_info
 {
 	t_msg_type		msg_type[LOG_BUF_MAX];
@@ -92,7 +100,7 @@ typedef struct	s_msg_info
 typedef struct	s_start
 {
 	unsigned long	timestamp;
-	bool			ready;
+	bool			run_simulation;
 	pthread_mutex_t	*mutex;
 }	t_start;
 
@@ -155,6 +163,11 @@ void	find_free_forks(
 );
 /*	endof Fork management	*/
 
+/*		Panopticon		*/
+void	*panopticon(
+	void *data
+);
+/*	endof Panopticon	*/
 /*		Timestamping		*/
 unsigned long	get_start_timestamp(
 	void

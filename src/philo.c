@@ -61,84 +61,10 @@ void	*praxis(
 		total_meals = episteme->meal_count;
 	else if (episteme->meal_count == NO_LIMIT)
 		total_meals = 1;
-	while (times_eaten < total_meals)
+	while (times_eaten < total_meals && episteme->start->run_simulation == true)
 	{
 		if (routine(episteme, &last_eaten, &times_eaten, &forks_held) == 1)
 			return (NULL);
-	}
-	return (NULL);
-}
-
-void	*panopticon(
-	void *data
-)
-{
-	t_panopticon_data	*const panopticon_data = (t_panopticon_data *) data;
-	int					i;
-	int					first_free_index;
-	char				message_buffer[MSG_BUF_MAX];
-
-	printf("PANOPTICON.\n");
-	first_free_index = 0;
-	pthread_mutex_lock(panopticon_data->start->mutex);
-	if (panopticon_data->start->ready == true)
-		panopticon_data->start_timestamp = panopticon_data->start->timestamp;
-	pthread_mutex_unlock(panopticon_data->start->mutex);
-
-	t_msg_type		msg_type_local;
-	unsigned long	timestamp_local;
-	int				philo_index_local;
-	int				goal;
-
-	i = 0;
-	// DONT FORGET TO IMPLEMENT WRAP AROUND FOR THIS.
-	while (1)
-	{
-		usleep(500);
-		pthread_mutex_lock(&panopticon_data->msg_info->first_free_index_mutex);
-		first_free_index = panopticon_data->msg_info->first_free_index;
-		pthread_mutex_unlock(&panopticon_data->msg_info->first_free_index_mutex);
-		if (first_free_index < i)
-			goal = LOG_BUF_MAX;
-		else
-			goal = first_free_index;
-		while (i < goal)
-		{
-			pthread_mutex_lock(&panopticon_data->msg_info->msg_type_mutex);
-			msg_type_local = panopticon_data->msg_info->msg_type[i];
-			panopticon_data->msg_info->msg_type[i] = 0;
-			pthread_mutex_unlock(&panopticon_data->msg_info->msg_type_mutex);
-			pthread_mutex_lock(&panopticon_data->msg_info->timestamp_mutex);
-			timestamp_local = panopticon_data->msg_info->timestamp[i];
-			panopticon_data->msg_info->timestamp[i] = 0;
-			pthread_mutex_unlock(&panopticon_data->msg_info->timestamp_mutex);
-			pthread_mutex_lock(&panopticon_data->msg_info->philo_index_mutex);
-			philo_index_local = panopticon_data->msg_info->philo_index[i];
-			panopticon_data->msg_info->philo_index[i] = 0;
-			pthread_mutex_unlock(&panopticon_data->msg_info->philo_index_mutex);
-			if (msg_type_local == MSG_DEAD)
-			{
-				printf("%lu philosopher %d fucking died\n", timestamp_local, philo_index_local + 1);
-				return (NULL);
-			}	
-			else if (msg_type_local == MSG_THINK)
-				printf("%lu philosopher %d is thinking\n", timestamp_local, philo_index_local + 1);
-			else if (msg_type_local == MSG_FORK)
-				printf("%lu philosopher %d took a fork\n", timestamp_local, philo_index_local + 1);
-			else if (msg_type_local == MSG_EAT)
-				printf("%lu philosopher %d is eating\n", timestamp_local, philo_index_local + 1);
-			else if (msg_type_local == MSG_SLEEP)
-				printf("%lu philosopher %d is sleeping\n", timestamp_local, philo_index_local + 1);
-			//printf("i: %d, first free: %d\n", i, first_free_index);
-			if (i == LOG_BUF_MAX - 1)
-			{
-				if (goal == LOG_BUF_MAX && i < LOG_BUF_MAX)
-					goal = first_free_index;
-				i = 0;
-			}
-			else
-				i++;
-		}
 	}
 	return (NULL);
 }
@@ -181,7 +107,7 @@ int	run_threads(
 	while (++i < philo_args.philo_count)
 		pthread_create(&philo_threads[i], NULL, praxis, &episteme[i]);
 	i = -1;
-	start->ready = true;
+	start->run_simulation = true;
 	start->timestamp = get_start_timestamp();
 	pthread_mutex_unlock(start->mutex);
 	while (++i < philo_args.philo_count)
@@ -205,7 +131,7 @@ int	prepare_simulation(
 
 	// calloc episteme w/e
 	pthread_mutex_init(&start_mutex, NULL);
-	start.ready = false;
+	start.run_simulation = false;
 	start.timestamp = 0;
 	start.mutex = &start_mutex;
 	prepare_surveillance_data(&panopticon_data, &msg_info, philo_args, &start);

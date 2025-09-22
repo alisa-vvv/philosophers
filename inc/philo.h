@@ -21,8 +21,8 @@
 # define MILLISECOND 1000
 # define NO_LIMIT -1
 # define PHILO_BUF_MAX 1024
-# define MSG_BUF_MAX 4096
-# define LOG_BUF_MAX 2048
+# define MSG_BUF_MAX 8192
+# define LOG_BUF_MAX 8192
 
 typedef	enum e_philo_errno
 {

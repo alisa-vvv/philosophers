@@ -23,18 +23,20 @@ void	get_log_values(
 	int i
 )
 {
-	pthread_mutex_lock(&panopticon_data->msg_info->msg_type_mutex);
+	pthread_mutex_lock(&panopticon_data->msg_info->first_free_index_mutex);
+//	pthread_mutex_lock(&panopticon_data->msg_info->msg_type_mutex);
 	local_info->msg_type = panopticon_data->msg_info->msg_type[i];
 	panopticon_data->msg_info->msg_type[i] = 0;
-	pthread_mutex_unlock(&panopticon_data->msg_info->msg_type_mutex);
-	pthread_mutex_lock(&panopticon_data->msg_info->timestamp_mutex);
+//	pthread_mutex_unlock(&panopticon_data->msg_info->msg_type_mutex);
+//	pthread_mutex_lock(&panopticon_data->msg_info->timestamp_mutex);
 	local_info->timestamp = panopticon_data->msg_info->timestamp[i];
 	panopticon_data->msg_info->timestamp[i] = 0;
-	pthread_mutex_unlock(&panopticon_data->msg_info->timestamp_mutex);
-	pthread_mutex_lock(&panopticon_data->msg_info->philo_index_mutex);
+//	pthread_mutex_unlock(&panopticon_data->msg_info->timestamp_mutex);
+//	pthread_mutex_lock(&panopticon_data->msg_info->philo_index_mutex);
 	local_info->philo_index = panopticon_data->msg_info->philo_index[i];
 	panopticon_data->msg_info->philo_index[i] = 0;
-	pthread_mutex_unlock(&panopticon_data->msg_info->philo_index_mutex);
+//	pthread_mutex_unlock(&panopticon_data->msg_info->philo_index_mutex);
+	pthread_mutex_unlock(&panopticon_data->msg_info->first_free_index_mutex);
 }
 
 int	philo_ultoa(
@@ -86,8 +88,15 @@ int	display_message(
 	if (msg_info->msg_type == MSG_DEAD)
 	{
 		philo_memcpy(" died\n", &msg_buffer[*msg_buf_i], 6);
-		write(STDOUT_FILENO, msg_buffer, *msg_buf_i + 7);
-		//printf("post msg: %lu\n", get_timestamp_in_ms(panopticon_data->start_timestamp));
+		*msg_buf_i = *msg_buf_i + 6;
+		write(STDOUT_FILENO, msg_buffer, *msg_buf_i + 1);
+		//printf("%s", msg_buffer);
+		write(STDOUT_FILENO, "post msg: ", 10);
+		unsigned long post_stamp = get_timestamp_in_ms(panopticon_data->start_timestamp);
+		char	post_msg[24];
+		philo_ultoa(post_stamp, post_msg);
+		write(STDOUT_FILENO, post_msg, 5);
+	//	//printf("post msg: %lu\n", get_timestamp_in_ms(panopticon_data->start_timestamp));
 		pthread_mutex_lock(panopticon_data->start->mutex);
 		panopticon_data->start->run_simulation = false;
 		pthread_mutex_unlock(panopticon_data->start->mutex);
@@ -114,11 +123,11 @@ int	display_message(
 		*msg_buf_i = *msg_buf_i + 13;
 	}
 	//printf("message buffer: %d\n", msg_buf_i);
-	write(STDOUT_FILENO, &msg_buffer[0], *msg_buf_i);
-	//printf("%s", msg_buffer);
-	//printf("post msg: %lu\n", get_timestamp_in_ms(panopticon_data->start_timestamp));
-	memset(msg_buffer, 0, *msg_buf_i + 1);
-	*msg_buf_i = 0;
+	//write(STDOUT_FILENO, &msg_buffer[0], *msg_buf_i);
+	////printf("%s", msg_buffer);
+	////printf("post msg: %lu\n", get_timestamp_in_ms(panopticon_data->start_timestamp));
+	//memset(msg_buffer, 0, *msg_buf_i + 1);
+	//*msg_buf_i = 0;
 //	printf("*msg_buf: %d\n", *msg_buf_i);
 	return (0);
 }
@@ -178,41 +187,39 @@ void	*panopticon(
 		// maybe replace with a looping usleep
 		if (msg_buf_i == 0)
 			loop_stamp = get_timestamp_in_ms(panopticon_data->start_timestamp);
-		//usleep(2000);
+		//while (get_timestamp_in_ms(panopticon_data->start_timestamp) - loop_stamp < 7)
+		usleep(1000);
 		pthread_mutex_lock(&panopticon_data->msg_info->first_free_index_mutex);
 		msg_info_local.first_free_index = panopticon_data->msg_info->first_free_index;
 		pthread_mutex_unlock(&panopticon_data->msg_info->first_free_index_mutex);
-		while (msg_info_local.first_free_index == goal)
-		{
-			usleep(2000);
-			pthread_mutex_lock(&panopticon_data->msg_info->first_free_index_mutex);
-			msg_info_local.first_free_index = panopticon_data->msg_info->first_free_index;
-			pthread_mutex_unlock(&panopticon_data->msg_info->first_free_index_mutex);
-		}
-		// this probably goes in it;s own fucking thugn as ewkfbhdjsfsadjfs
 		if (msg_info_local.first_free_index < i)
 			goal = LOG_BUF_MAX;
 		else
 			goal = msg_info_local.first_free_index;
-		printf("what is goal: %d\n", goal);
+		//printf("what is goal: %d\n", goal);
 		while (i < goal)
 		{
 			assert(msg_buffer[msg_buf_i] == 0);
 			get_log_values(panopticon_data, &msg_info_local, i);
+			//printf("what is msg buf: %d\n", msg_buf_i);
 			//if (display_message(panopticon_data, &msg_info_local) != 0)
 			//	return (NULL);
 			if (display_message(panopticon_data, &msg_info_local, msg_buffer, &msg_buf_i) != 0)
 				return (NULL);
-		//	else if (get_timestamp_in_ms(panopticon_data->start_timestamp) - loop_stamp > 20
-		//		|| msg_buf_i > (MSG_BUF_MAX / 4) * 3)
-		//	{
-		//		//printf("message buffer: %d\n", msg_buf_i);
-		//		write(STDOUT_FILENO, &msg_buffer[0], msg_buf_i + 1);
-		//		//printf("%s", msg_buffer);
-		//		//printf("post msg: %lu\n", get_timestamp_in_ms(panopticon_data->start_timestamp));
-		//		memset(msg_buffer, 0, msg_buf_i + 1);
-		//		msg_buf_i = 0;
-		//	}
+			else if (get_timestamp_in_ms(panopticon_data->start_timestamp) - loop_stamp > 20
+				|| msg_buf_i > (MSG_BUF_MAX / 4) * 3)
+			{
+				write(STDOUT_FILENO, msg_buffer, msg_buf_i + 1);
+				//write(STDOUT_FILENO, "post msg: ", 10);
+				//unsigned long post_stamp = get_timestamp_in_ms(panopticon_data->start_timestamp);
+				//char	post_msg[24];
+				//philo_ultoa(post_stamp, post_msg);
+				//write(STDOUT_FILENO, post_msg, 5);
+				//printf("%s", msg_buffer);
+				//printf("post msg: %lu\n", get_timestamp_in_ms(panopticon_data->start_timestamp));
+				memset(msg_buffer, 0, msg_buf_i + 1);
+				msg_buf_i = 0;
+			}
 			//printf("i: %d, first free: %d\n", i, first_free_index);
 			if (i == LOG_BUF_MAX - 1)
 			{

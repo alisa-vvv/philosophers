@@ -16,9 +16,7 @@ t_philo_errno	philo_exit(
 	t_philo_errno	error_code
 )
 {
-	if (error_code == success)
-		philo_putstr_fd(STDERR_FILENO, "Successful Exit\n");
-	else if (error_code == wrong_argc)
+	if (error_code == wrong_argc)
 		philo_putstr_fd(STDERR_FILENO, "Error! Wrong argument count\n");
 	else if (error_code == invalid_argument)
 		philo_putstr_fd(STDERR_FILENO, "Error! Invalid argument(s)\n");

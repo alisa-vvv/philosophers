@@ -32,19 +32,20 @@ void	log_action(
 		msg_info->first_free_index = 0;
 	else
 		msg_info->first_free_index += 1;
-	printf("what is it: %d\n", msg_index);
+//	printf("what is it: %d\n", msg_index);
 	//printf("msg_info->first_free_index after log: %d\n", msg_info->first_free_index);
-	pthread_mutex_unlock(&msg_info->first_free_index_mutex);
-	pthread_mutex_lock(&msg_info->msg_type_mutex);
+	//pthread_mutex_unlock(&msg_info->first_free_index_mutex);
+	//pthread_mutex_lock(&msg_info->msg_type_mutex);
 	msg_info->msg_type[msg_index] = msg_type;
-	pthread_mutex_unlock(&msg_info->msg_type_mutex);
-	pthread_mutex_lock(&msg_info->timestamp_mutex);
+	//pthread_mutex_unlock(&msg_info->msg_type_mutex);
+	//pthread_mutex_lock(&msg_info->timestamp_mutex);
 	assert(msg_info->timestamp[msg_index] == 0); // REMOVE
 	msg_info->timestamp[msg_index] = timestamp;
-	pthread_mutex_unlock(&msg_info->timestamp_mutex);
-	pthread_mutex_lock(&msg_info->philo_index_mutex);
+	//pthread_mutex_unlock(&msg_info->timestamp_mutex);
+	//pthread_mutex_lock(&msg_info->philo_index_mutex);
 	msg_info->philo_index[msg_index] = philo_index;
-	pthread_mutex_unlock(&msg_info->philo_index_mutex);
+	//pthread_mutex_unlock(&msg_info->philo_index_mutex);
+	pthread_mutex_unlock(&msg_info->first_free_index_mutex);
 }
 
 unsigned long	get_timestamp_in_ms(

@@ -44,9 +44,13 @@ int	philo_sleep(
 	if (check_simulation_end(episteme) == 1)
 		return (1);
 	log_action(philo_index, MSG_SLEEP, episteme->msg_info, sleep_start);
+	if (check_simulation_end(episteme) == 1)
+		return (1);
 	usleep(episteme->time_to_sleep / 2);
 	while (time_slept < time_to_sleep_in_ms)
 	{
+		if (check_simulation_end(episteme) == 1)
+			return (1);
 		usleep(50);
 		time_slept = get_timestamp_in_ms(episteme->start_timestamp) - sleep_start;
 	}
@@ -74,9 +78,13 @@ int	philo_eat(
 	log_action(philo_index, MSG_EAT, episteme->msg_info, *last_eaten);
 	*episteme->philo = EATING;
 	time_eaten = 0;
+	if (check_simulation_end(episteme) == 1)
+		return (1);
 	usleep(episteme->time_to_eat / 2);
 	while (time_eaten < time_to_eat_in_ms)
 	{
+		if (check_simulation_end(episteme) == 1)
+			return (1);
 		usleep(50);
 		time_eaten = get_timestamp_in_ms(start_timestamp) - *last_eaten;
 	}

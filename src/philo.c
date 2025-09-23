@@ -154,7 +154,7 @@ int	prepare_simulation(
 	t_thread_data		episteme[PHILO_BUF_MAX];
 	t_msg_info			msg_info;
 	t_panopticon_data	panopticon_data;
-	unsigned int		i;
+	unsigned long		log_arr[LOG_ARR_MAX];
 
 	// calloc episteme w/e
 	pthread_mutex_init(&start_mutex, NULL);

@@ -22,7 +22,8 @@
 # define NO_LIMIT -1
 # define PHILO_BUF_MAX 256
 # define MSG_BUF_MAX 8192
-# define LOG_BUF_MAX 8192
+# define LOG_BUF_MAX 4096
+# define LOG_ARR_MAX 12288
 
 typedef	enum e_philo_errno
 {
@@ -106,6 +107,7 @@ typedef struct	s_start
 
 typedef struct	s_panopticon_data
 {
+	unsigned long	*log_arr;
 	t_msg_info		*msg_info;
 	int				meals_eaten[PHILO_BUF_MAX];
 	t_start			*start;
@@ -128,6 +130,8 @@ typedef struct	s_thread_data
 	t_forkex		*right_forkex;
 	t_philo			*philo;
 	t_msg_info		*msg_info;
+	unsigned long	*first_free_index;
+	unsigned long	*log_arr;
 	unsigned long	start_timestamp;
 	int 			philo_index;
 }	t_thread_data;

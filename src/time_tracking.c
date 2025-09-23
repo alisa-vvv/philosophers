@@ -20,7 +20,7 @@
 void	log_action(
 	int philo_index,
 	t_msg_type msg_type,
-	t_msg_info *msg_info,
+	t_log_arr *log_arr,
 	unsigned long timestamp
 )
 {

@@ -20,6 +20,7 @@ int	routine(
 	int *forks_held
 )
 {
+	int				stop;
 	unsigned long	timestamp;
 
 	philo_think(episteme);
@@ -27,17 +28,38 @@ int	routine(
 	if (*forks_held == 2)
 	{
 		*episteme->philo = EATING;
-		philo_eat(episteme, last_eaten, episteme->philo_index, forks_held);
+		stop = philo_eat(episteme, last_eaten, episteme->philo_index, forks_held);
+		if (stop == 1)
+			return (1);
 		if (episteme->meal_count != NO_LIMIT)
 			(*times_eaten)++;
-		philo_sleep(episteme, episteme->philo_index);
+		stop = philo_sleep(episteme, episteme->philo_index);
+		if (stop == 1)
+			return (1);
 	}	
 	timestamp = get_timestamp_in_ms(episteme->start_timestamp);
 	if (timestamp - *last_eaten > episteme->time_to_die)
 	{
+		pthread_mutex_lock(episteme->start->mutex);
+		episteme->start->run_simulation = false;
+		pthread_mutex_unlock(episteme->start->mutex);
 		log_action(episteme->philo_index, MSG_DEAD, episteme->msg_info, timestamp);
 		return (1);
 	}
+	return (0);
+}
+
+int	check_simulation_end(
+	t_thread_data	*episteme
+)
+{
+	pthread_mutex_lock(episteme->start->mutex);
+	if (episteme->start->run_simulation == false)
+	{
+		pthread_mutex_unlock(episteme->start->mutex);
+		return (1);
+	}
+	pthread_mutex_unlock(episteme->start->mutex);
 	return (0);
 }
 
@@ -61,8 +83,10 @@ void	*praxis(
 		total_meals = episteme->meal_count;
 	else if (episteme->meal_count == NO_LIMIT)
 		total_meals = 1;
-	while (times_eaten < total_meals && episteme->start->run_simulation == true)
+	while (times_eaten < total_meals)
 	{
+		if (check_simulation_end(episteme) == 1)
+			return (NULL);
 		if (routine(episteme, &last_eaten, &times_eaten, &forks_held) == 1)
 			return (NULL);
 	}
@@ -84,9 +108,11 @@ void	prepare_surveillance_data(
 	pthread_mutex_init(&msg_info->philo_index_mutex, NULL);
 	msg_info->first_free_index = 0;
 	pthread_mutex_init(&msg_info->first_free_index_mutex, NULL);
+	memset(panopticon_data->meals_eaten, 0, PHILO_BUF_MAX);
 	panopticon_data->msg_info = msg_info;
 	panopticon_data->philo_count = philo_args.philo_count;
 	panopticon_data->meal_count = philo_args.meal_count;
+	panopticon_data->philos_sated = 0;
 	panopticon_data->start = start;
 }
 
@@ -110,6 +136,7 @@ int	run_threads(
 	start->run_simulation = true;
 	start->timestamp = get_start_timestamp();
 	pthread_mutex_unlock(start->mutex);
+	pthread_join(panopticon_thread, NULL);
 	while (++i < philo_args.philo_count)
 		pthread_join(philo_threads[i], NULL);
 	return (0);

@@ -39,7 +39,7 @@ void	log_action(
 	msg_info->msg_type[msg_index] = msg_type;
 	//pthread_mutex_unlock(&msg_info->msg_type_mutex);
 	//pthread_mutex_lock(&msg_info->timestamp_mutex);
-	assert(msg_info->timestamp[msg_index] == 0); // REMOVE
+	//assert(msg_info->timestamp[msg_index] == 0); // REMOVE
 	msg_info->timestamp[msg_index] = timestamp;
 	//pthread_mutex_unlock(&msg_info->timestamp_mutex);
 	//pthread_mutex_lock(&msg_info->philo_index_mutex);

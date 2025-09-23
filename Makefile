@@ -53,7 +53,7 @@ CPPFLAGS	= $(INCFLAGS) -MMD -MP
 
 INCFLAGS	= $(addprefix -I,$(INCLUDE))
 CFLAGS	= -Wall -Wextra -Werror -fsanitize=undefined
-INPUT	= 200 40000 100 100
+INPUT	= 200 300 100 100 300
 
 
 -include $(OFILES:.o=.d)
@@ -102,5 +102,8 @@ leak:
 val:
 	valgrind --track-fds=yes --track-origins=yes \
 	-s --leak-check=full --show-leak-kinds=all ./$(NAME) $(INPUT)
+hel:
+	$(MAKE) -s debug
+	valgrind --tool=helgrind ./$(NAME) $(INPUT)
 
 .PHONY:	clangd all clean fclean re libs_clean test run leak debug gdb

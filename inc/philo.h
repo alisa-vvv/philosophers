@@ -20,9 +20,9 @@
 # define SECOND 1000000
 # define MILLISECOND 1000
 # define NO_LIMIT -1
-# define PHILO_BUF_MAX 1024
+# define PHILO_BUF_MAX 256
 # define MSG_BUF_MAX 8192
-# define LOG_BUF_MAX 4096
+# define LOG_BUF_MAX 8192
 
 typedef	enum e_philo_errno
 {
@@ -107,8 +107,10 @@ typedef struct	s_start
 typedef struct	s_panopticon_data
 {
 	t_msg_info		*msg_info;
+	int				meals_eaten[PHILO_BUF_MAX];
 	t_start			*start;
 	unsigned long	start_timestamp;
+	int				philos_sated;
 	int				philo_count;
 	int				meal_count;
 }	t_panopticon_data;
@@ -116,7 +118,6 @@ typedef struct	s_panopticon_data
 
 typedef struct	s_thread_data
 {
-	//t_philo_args	philo_args;
 	unsigned long	philo_count;
 	unsigned long	time_to_die;
 	unsigned long	time_to_eat;
@@ -132,17 +133,20 @@ typedef struct	s_thread_data
 }	t_thread_data;
 
 
+int	check_simulation_end(
+	t_thread_data	*episteme
+);
 /*		States		*/
 void	philo_think(
 	t_thread_data *episteme
 );
 
-void	philo_sleep(
+int	philo_sleep(
 	t_thread_data *episteme,
 	int philo_index
 );
 
-void	philo_eat(
+int	philo_eat(
 	t_thread_data *episteme,
 	unsigned long *last_eaten,
 	int	philo_index,

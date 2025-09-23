@@ -29,7 +29,7 @@ void	philo_think(
 }
 
 //optimize all of this
-void	philo_sleep(
+int	philo_sleep(
 	t_thread_data *episteme,
 	int philo_index
 )
@@ -41,6 +41,8 @@ void	philo_sleep(
 	*episteme->philo = SLEEPING;
 	sleep_start = get_timestamp_in_ms(episteme->start_timestamp);
 	time_slept = get_timestamp_in_ms(episteme->start_timestamp) - sleep_start;
+	if (check_simulation_end(episteme) == 1)
+		return (1);
 	log_action(philo_index, MSG_SLEEP, episteme->msg_info, sleep_start);
 	usleep(episteme->time_to_sleep / 2);
 	while (time_slept < time_to_sleep_in_ms)
@@ -48,11 +50,13 @@ void	philo_sleep(
 		usleep(50);
 		time_slept = get_timestamp_in_ms(episteme->start_timestamp) - sleep_start;
 	}
+	return (0);
 }
 
 // conversions need to be changed all around to avoid useless calculations
 // so time_to_eat_in_ms probably not needed
-void	philo_eat(
+// add checks for end of simulation?
+int	philo_eat(
 	t_thread_data *episteme,
 	unsigned long *last_eaten,
 	int	philo_index,
@@ -65,6 +69,8 @@ void	philo_eat(
 	const unsigned long	time_to_eat_in_ms = episteme->time_to_eat / 1000;
 
 	*last_eaten = get_timestamp_in_ms(episteme->start_timestamp);
+	if (check_simulation_end(episteme) == 1)
+		return (1);
 	log_action(philo_index, MSG_EAT, episteme->msg_info, *last_eaten);
 	*episteme->philo = EATING;
 	time_eaten = 0;
@@ -81,5 +87,6 @@ void	philo_eat(
 	episteme->left_forkex->fork = UNUSED;
 	pthread_mutex_unlock(&episteme->left_forkex->mutex);
 	*forks_held = 0;
+	return (0);
 }
 

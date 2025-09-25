@@ -29,11 +29,6 @@ void	log_action(
 	//MSG_TYPE += 0
 	//TIMESTAMP += 1
 	//PHILO += 2
-	if (check_simulation_end(episteme) == 1 && msg_type != MSG_DEAD)
-	{
-		printf("we ger here?\n");
-		return ;
-	}
 	pthread_mutex_lock(episteme->log_mutex);
 	//printf("*episteme->log_index: %lu\n", *episteme->log_index);
 	msg_index = *episteme->log_index;

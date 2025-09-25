@@ -13,6 +13,31 @@
 * pthread_mutex_unlock
 */
 
+int	check_if_dead(
+	t_thread_data *episteme,
+	unsigned long *last_eaten
+)
+{
+	unsigned long	timestamp;
+	bool			do_log;
+
+	timestamp = get_timestamp_in_ms(episteme->start_timestamp);
+	if (timestamp - *last_eaten > episteme->time_to_die)
+	{
+		pthread_mutex_lock(episteme->start->mutex);
+		if (episteme->start->run_simulation == false)
+			do_log = false;
+		else
+			do_log = true;
+		episteme->start->run_simulation = false;
+		pthread_mutex_unlock(episteme->start->mutex);
+		if (do_log == true)
+			log_action(episteme, episteme->philo_index, MSG_DEAD, timestamp);
+		return (1);
+	}
+	return (0);
+}
+
 int	routine(
 	t_thread_data *episteme,
 	unsigned long *last_eaten,
@@ -25,6 +50,8 @@ int	routine(
 
 	philo_think(episteme);
 	find_free_forks(episteme, forks_held);
+	if (check_if_dead(episteme, last_eaten) == 1)
+		return (1);
 	if (*forks_held == 2)
 	{
 		*episteme->philo = EATING;
@@ -33,19 +60,12 @@ int	routine(
 			return (1);
 		if (episteme->meal_count != NO_LIMIT)
 			(*times_eaten)++;
-		stop = philo_sleep(episteme, episteme->philo_index);
+		stop = philo_sleep(episteme, last_eaten, episteme->philo_index);
 		if (stop == 1)
 			return (1);
 	}	
-	timestamp = get_timestamp_in_ms(episteme->start_timestamp);
-	if (timestamp - *last_eaten > episteme->time_to_die)
-	{
-		pthread_mutex_lock(episteme->start->mutex);
-		episteme->start->run_simulation = false;
-		pthread_mutex_unlock(episteme->start->mutex);
-		log_action(episteme, episteme->philo_index, MSG_DEAD, timestamp);
+	if (check_if_dead(episteme, last_eaten) == 1)
 		return (1);
-	}
 	return (0);
 }
 

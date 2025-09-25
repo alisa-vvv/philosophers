@@ -24,8 +24,6 @@ void	philo_think(
 	{
 		*episteme->philo = THINKING;
 		timestamp = get_timestamp_in_ms(episteme->start_timestamp);
-		if (check_simulation_end(episteme) == 1)
-			return ;
 		log_action(episteme, episteme->philo_index, MSG_THINK, timestamp);
 	}
 }
@@ -34,6 +32,7 @@ void	philo_think(
 		#include <stdio.h> // kfldsfjkdfjksd
 int	philo_sleep(
 	t_thread_data *episteme,
+	unsigned long *last_eaten,
 	int philo_index
 )
 {
@@ -43,17 +42,16 @@ int	philo_sleep(
 
 	*episteme->philo = SLEEPING;
 	sleep_start = get_timestamp_in_ms(episteme->start_timestamp);
-	time_slept = get_timestamp_in_ms(episteme->start_timestamp) - sleep_start;
-	if (check_simulation_end(episteme) == 1)
-		return (1);
 	log_action(episteme, episteme->philo_index, MSG_SLEEP, sleep_start);
-	usleep(episteme->time_to_sleep / 2);
+	time_slept = get_timestamp_in_ms(episteme->start_timestamp) - sleep_start;
+	//usleep(episteme->time_to_sleep / 2);
 	while (time_slept < time_to_sleep_in_ms)
 	{
-		//printf("here?\n");
-		if (check_simulation_end(episteme) == 1)
+		usleep(5000);
+		if (check_if_dead(episteme, last_eaten) == 1)
 			return (1);
-		usleep(50);
+		//if (check_simulation_end(episteme) == 1)
+		//	return (1);
 		time_slept = get_timestamp_in_ms(episteme->start_timestamp) - sleep_start;
 	}
 	return (0);
@@ -75,19 +73,22 @@ int	philo_eat(
 	const unsigned long	time_to_eat_in_ms = episteme->time_to_eat / 1000;
 
 	*last_eaten = get_timestamp_in_ms(episteme->start_timestamp);
-	if (check_simulation_end(episteme) == 1)
-		return (1);
 	log_action(episteme, episteme->philo_index, MSG_EAT, *last_eaten);
 	*episteme->philo = EATING;
 	time_eaten = 0;
-	if (check_simulation_end(episteme) == 1)
-		return (1);
-	usleep(episteme->time_to_eat / 2);
+	//if (check_simulation_end(episteme) == 1)
+	//	return (1);
+	//usleep(episteme->time_to_eat / 2);
 	while (time_eaten < time_to_eat_in_ms)
 	{
-		if (check_simulation_end(episteme) == 1)
+		usleep(5000);
+		if (time_eaten > episteme->time_to_die)
 			return (1);
-		usleep(50);
+		//if (check_if_dead(episteme, last_eaten) == 1)
+		//	return (1);
+	//	if (check_simulation_end(episteme) == 1) // replace with checks for if philo
+	//		// should die
+	//		return (1);
 		time_eaten = get_timestamp_in_ms(start_timestamp) - *last_eaten;
 	}
 	pthread_mutex_lock(&episteme->right_forkex->mutex);

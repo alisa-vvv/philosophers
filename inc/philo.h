@@ -145,12 +145,17 @@ int	check_simulation_end(
 	t_thread_data	*episteme
 );
 /*		States		*/
+int	check_if_dead(
+	t_thread_data *episteme,
+	unsigned long *last_eaten
+);
 void	philo_think(
 	t_thread_data *episteme
 );
 
 int	philo_sleep(
 	t_thread_data *episteme,
+	unsigned long *last_eaten,
 	int philo_index
 );
 

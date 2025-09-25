@@ -89,6 +89,10 @@ int	display_message(
 	*i = *i + philo_ultoa(msg_info->philo_index + 1, &msg_buffer[*i]);
 	if (msg_info->msg_type == MSG_DEAD)
 	{
+		pthread_mutex_lock(panopticon_data->start->mutex);
+		panopticon_data->start->run_simulation = false;
+		pthread_mutex_unlock(panopticon_data->start->mutex);
+		//usleep(100);
 		philo_memcpy(" died\n", &msg_buffer[*i], 6);
 		//*i = *i + 6;
 		TEST_pre_stamp = get_timestamp_in_ms(panopticon_data->start_timestamp);
@@ -108,9 +112,6 @@ int	display_message(
 		philo_ultoa(TEST_post_stamp, post_msg);
 		write(STDOUT_FILENO, post_msg, 5);
 
-		pthread_mutex_lock(panopticon_data->start->mutex);
-		panopticon_data->start->run_simulation = false;
-		pthread_mutex_unlock(panopticon_data->start->mutex);
 		return (1);
 	}	
 	else if (msg_info->msg_type == MSG_THINK)
@@ -244,13 +245,13 @@ void	*panopticon(
 			else
 				i += 3;
 		}
-		pthread_mutex_lock(panopticon_data->start->mutex);
-		if (panopticon_data->start->run_simulation == false)
-		{
-			pthread_mutex_unlock(panopticon_data->start->mutex);
-			return (write_and_clear_msg_buf(msg_buffer, &msg_buf_i));
-		}
-		pthread_mutex_unlock(panopticon_data->start->mutex);
+		//pthread_mutex_lock(panopticon_data->start->mutex);
+		//if (panopticon_data->start->run_simulation == false)
+		//{
+		//	pthread_mutex_unlock(panopticon_data->start->mutex);
+		//	return (write_and_clear_msg_buf(msg_buffer, &msg_buf_i));
+		//}
+		//pthread_mutex_unlock(panopticon_data->start->mutex);
 	}
 	return (NULL);
 }

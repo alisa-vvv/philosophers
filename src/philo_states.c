@@ -24,11 +24,14 @@ void	philo_think(
 	{
 		*episteme->philo = THINKING;
 		timestamp = get_timestamp_in_ms(episteme->start_timestamp);
-		log_action(episteme->philo_index, MSG_THINK, episteme->msg_info, timestamp);
+		if (check_simulation_end(episteme) == 1)
+			return ;
+		log_action(episteme, episteme->philo_index, MSG_THINK, timestamp);
 	}
 }
 
 //optimize all of this
+		#include <stdio.h> // kfldsfjkdfjksd
 int	philo_sleep(
 	t_thread_data *episteme,
 	int philo_index
@@ -43,12 +46,11 @@ int	philo_sleep(
 	time_slept = get_timestamp_in_ms(episteme->start_timestamp) - sleep_start;
 	if (check_simulation_end(episteme) == 1)
 		return (1);
-	log_action(philo_index, MSG_SLEEP, episteme->msg_info, sleep_start);
-	if (check_simulation_end(episteme) == 1)
-		return (1);
+	log_action(episteme, episteme->philo_index, MSG_SLEEP, sleep_start);
 	usleep(episteme->time_to_sleep / 2);
 	while (time_slept < time_to_sleep_in_ms)
 	{
+		//printf("here?\n");
 		if (check_simulation_end(episteme) == 1)
 			return (1);
 		usleep(50);
@@ -75,7 +77,7 @@ int	philo_eat(
 	*last_eaten = get_timestamp_in_ms(episteme->start_timestamp);
 	if (check_simulation_end(episteme) == 1)
 		return (1);
-	log_action(philo_index, MSG_EAT, episteme->msg_info, *last_eaten);
+	log_action(episteme, episteme->philo_index, MSG_EAT, *last_eaten);
 	*episteme->philo = EATING;
 	time_eaten = 0;
 	if (check_simulation_end(episteme) == 1)

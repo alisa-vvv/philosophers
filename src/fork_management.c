@@ -27,7 +27,9 @@ void	take_a_fork(
 		(*forks_held)++;
 		pthread_mutex_unlock(&forkex->mutex);
 		timestamp = get_timestamp_in_ms(episteme->start_timestamp);
-		log_action(episteme->philo_index, MSG_FORK, episteme->msg_info, timestamp);
+		if (check_simulation_end(episteme) == 1)
+			return ;
+		log_action(episteme, episteme->philo_index, MSG_FORK, timestamp);
 	}
 	else
 		pthread_mutex_unlock(&forkex->mutex);

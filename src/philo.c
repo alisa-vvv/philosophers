@@ -43,7 +43,7 @@ int	routine(
 		pthread_mutex_lock(episteme->start->mutex);
 		episteme->start->run_simulation = false;
 		pthread_mutex_unlock(episteme->start->mutex);
-		log_action(episteme->philo_index, MSG_DEAD, episteme->msg_info, timestamp);
+		log_action(episteme, episteme->philo_index, MSG_DEAD, timestamp);
 		return (1);
 	}
 	return (0);
@@ -95,21 +95,14 @@ void	*praxis(
 
 void	prepare_surveillance_data(
 	t_panopticon_data *panopticon_data,
-	t_msg_info *msg_info,
+	unsigned long *log_arr,
 	t_philo_args philo_args,
 	t_start *start
 )
 {
-	memset(msg_info->msg_type, 0, LOG_BUF_MAX);
-	pthread_mutex_init(&msg_info->msg_type_mutex, NULL);
-	memset(msg_info->timestamp, 0, LOG_BUF_MAX);
-	pthread_mutex_init(&msg_info->timestamp_mutex, NULL);
-	memset(msg_info->philo_index, 0, LOG_BUF_MAX);
-	pthread_mutex_init(&msg_info->philo_index_mutex, NULL);
-	msg_info->first_free_index = 0;
-	pthread_mutex_init(&msg_info->first_free_index_mutex, NULL);
+	memset(log_arr, 0, LOG_BUF_MAX);
 	memset(panopticon_data->meals_eaten, 0, PHILO_BUF_MAX);
-	panopticon_data->msg_info = msg_info;
+	panopticon_data->log_arr = log_arr;
 	panopticon_data->philo_count = philo_args.philo_count;
 	panopticon_data->meal_count = philo_args.meal_count;
 	panopticon_data->philos_sated = 0;
@@ -133,6 +126,7 @@ int	run_threads(
 	while (++i < philo_args.philo_count)
 		pthread_create(&philo_threads[i], NULL, praxis, &episteme[i]);
 	i = -1;
+	usleep(1000);
 	start->run_simulation = true;
 	start->timestamp = get_start_timestamp();
 	pthread_mutex_unlock(start->mutex);
@@ -151,18 +145,25 @@ int	prepare_simulation(
 	t_start				start;
 	pthread_mutex_t		start_mutex;
 	//t_thread_data		*episteme;
+
 	t_thread_data		episteme[PHILO_BUF_MAX];
-	t_msg_info			msg_info;
 	t_panopticon_data	panopticon_data;
-	unsigned long		log_arr[LOG_ARR_MAX];
+
+	unsigned long		log_arr[LOG_BUF_MAX];
+	unsigned long		log_index;
+	pthread_mutex_t		log_mutex;
 
 	// calloc episteme w/e
 	pthread_mutex_init(&start_mutex, NULL);
+	pthread_mutex_init(&log_mutex, NULL);
 	start.run_simulation = false;
 	start.timestamp = 0;
 	start.mutex = &start_mutex;
-	prepare_surveillance_data(&panopticon_data, &msg_info, philo_args, &start);
-	construct_paradigm(episteme, &msg_info, philosophers, philo_args, forkexes, &start);
+	prepare_surveillance_data(&panopticon_data, log_arr, philo_args, &start);
+	construct_paradigm(episteme, &log_mutex, &log_index, log_arr, philosophers, philo_args, forkexes, &start);
+	log_index = 0;
+	panopticon_data.log_index = &log_index;
+	panopticon_data.log_mutex = &log_mutex;
 	run_threads(episteme, &panopticon_data, philo_args, &start);
 	return (0);
 }

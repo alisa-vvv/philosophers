@@ -18,34 +18,42 @@
 #include "philo.h"
 
 void	log_action(
+	t_thread_data *episteme,
 	int philo_index,
 	t_msg_type msg_type,
-	t_log_arr *log_arr,
 	unsigned long timestamp
 )
 {
 	int	msg_index;
 
-	pthread_mutex_lock(&msg_info->first_free_index_mutex);
-	msg_index = msg_info->first_free_index;
-	if (msg_info->first_free_index == LOG_BUF_MAX - 1)
-		msg_info->first_free_index = 0;
+	//MSG_TYPE += 0
+	//TIMESTAMP += 1
+	//PHILO += 2
+	if (check_simulation_end(episteme) == 1 && msg_type != MSG_DEAD)
+	{
+		printf("we ger here?\n");
+		return ;
+	}
+	pthread_mutex_lock(episteme->log_mutex);
+	//printf("*episteme->log_index: %lu\n", *episteme->log_index);
+	msg_index = *episteme->log_index;
+	if (*episteme->log_index == LOG_BUF_MAX - 3)
+		*episteme->log_index = 0;
 	else
-		msg_info->first_free_index += 1;
-//	printf("what is it: %d\n", msg_index);
+		*episteme->log_index = *episteme->log_index + 3;
 	//printf("msg_info->first_free_index after log: %d\n", msg_info->first_free_index);
 	//pthread_mutex_unlock(&msg_info->first_free_index_mutex);
 	//pthread_mutex_lock(&msg_info->msg_type_mutex);
-	msg_info->msg_type[msg_index] = msg_type;
+	assert(episteme->log_arr[msg_index] == 0); // REMOVE
+	episteme->log_arr[msg_index] = msg_type;
 	//pthread_mutex_unlock(&msg_info->msg_type_mutex);
 	//pthread_mutex_lock(&msg_info->timestamp_mutex);
-	//assert(msg_info->timestamp[msg_index] == 0); // REMOVE
-	msg_info->timestamp[msg_index] = timestamp;
+	episteme->log_arr[msg_index + 1] = timestamp;
 	//pthread_mutex_unlock(&msg_info->timestamp_mutex);
 	//pthread_mutex_lock(&msg_info->philo_index_mutex);
-	msg_info->philo_index[msg_index] = philo_index;
+	episteme->log_arr[msg_index + 2] = philo_index;
 	//pthread_mutex_unlock(&msg_info->philo_index_mutex);
-	pthread_mutex_unlock(&msg_info->first_free_index_mutex);
+	pthread_mutex_unlock(episteme->log_mutex);
 }
 
 unsigned long	get_timestamp_in_ms(

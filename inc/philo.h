@@ -22,8 +22,7 @@
 # define NO_LIMIT -1
 # define PHILO_BUF_MAX 256
 # define MSG_BUF_MAX 8192
-# define LOG_BUF_MAX 4096
-# define LOG_ARR_MAX 12288
+# define LOG_BUF_MAX 12288
 
 typedef	enum e_philo_errno
 {
@@ -79,19 +78,15 @@ typedef struct	s_msg_info_local
 	t_msg_type		msg_type;
 	unsigned long	timestamp;
 	int				philo_index;
-	int				first_free_index;
+	int				log_index;
 }	t_msg_info_local;
 
 typedef struct	s_msg_info
 {
-	t_msg_type		msg_type[LOG_BUF_MAX];
-	pthread_mutex_t	msg_type_mutex;
-	unsigned long	timestamp[LOG_BUF_MAX];
-	pthread_mutex_t	timestamp_mutex;
-	int				philo_index[LOG_BUF_MAX];
-	pthread_mutex_t	philo_index_mutex;
-	int				first_free_index;
-	pthread_mutex_t	first_free_index_mutex;
+	t_msg_type		msg_type;
+	unsigned long	timestamp;
+	int				philo_index;
+	int				log_index;
 }	t_msg_info;
 
 
@@ -108,13 +103,17 @@ typedef struct	s_start
 typedef struct	s_panopticon_data
 {
 	unsigned long	*log_arr;
-	t_msg_info		*msg_info;
+	unsigned long	*log_index;
+	pthread_mutex_t	*log_mutex;
+
 	int				meals_eaten[PHILO_BUF_MAX];
-	t_start			*start;
-	unsigned long	start_timestamp;
 	int				philos_sated;
 	int				philo_count;
 	int				meal_count;
+
+	t_start			*start;
+
+	unsigned long	start_timestamp;
 }	t_panopticon_data;
 
 
@@ -124,16 +123,21 @@ typedef struct	s_thread_data
 	unsigned long	time_to_die;
 	unsigned long	time_to_eat;
 	unsigned long	time_to_sleep;
+
 	int				meal_count;
+
 	t_start			*start;
+	unsigned long	start_timestamp;
+
+	int 			philo_index;
+	t_philo			*philo;
 	t_forkex		*left_forkex;
 	t_forkex		*right_forkex;
-	t_philo			*philo;
-	t_msg_info		*msg_info;
-	unsigned long	*first_free_index;
+
+	unsigned long	*log_index;
 	unsigned long	*log_arr;
-	unsigned long	start_timestamp;
-	int 			philo_index;
+	pthread_mutex_t	*log_mutex;
+
 }	t_thread_data;
 
 
@@ -186,9 +190,9 @@ unsigned long	get_timestamp_in_ms(
 );
 
 void	log_action(
+	t_thread_data *episteme,
 	int philo_index,
 	t_msg_type msg_type,
-	t_msg_info *msg_info,
 	unsigned long timestamp
 );
 /*	endof Timestamping		*/
@@ -196,7 +200,9 @@ void	log_action(
 /*		Variable setup		*/
 int	construct_paradigm(
 	t_thread_data *episteme,
-	t_msg_info *msg_info,
+	pthread_mutex_t *log_mutex,
+	unsigned long *log_index,
+	unsigned long *log_arr,
 	t_philo *philosophers,
 	t_philo_args philo_args,
 	t_forkex *forkexes,

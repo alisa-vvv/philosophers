@@ -21,13 +21,13 @@ void	take_a_fork(
 	unsigned long	timestamp;
 
 	if (forkex->fork == UNUSED
-			|| (forkex->fork == NEVER_USED && episteme->philo_index % 2 == 0))
+			|| (forkex->fork == NEVER_USED && episteme->philo_i % 2 == 0))
 	{
 		forkex->fork = USED;
 		(*forks_held)++;
 		pthread_mutex_unlock(&forkex->mutex);
 		timestamp = get_timestamp_in_ms(episteme->start_timestamp);
-		log_action(episteme, episteme->philo_index, MSG_FORK, timestamp);
+		log_action(episteme, episteme->philo_i, MSG_FORK, timestamp);
 	}
 	else
 		pthread_mutex_unlock(&forkex->mutex);

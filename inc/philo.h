@@ -77,7 +77,7 @@ typedef struct	s_msg_info_local
 {
 	t_msg_type		msg_type;
 	unsigned long	timestamp;
-	int				philo_index;
+	int				philo_i;
 	int				log_index;
 }	t_msg_info_local;
 
@@ -85,7 +85,7 @@ typedef struct	s_msg_info
 {
 	t_msg_type		msg_type;
 	unsigned long	timestamp;
-	int				philo_index;
+	int				philo_i;
 	int				log_index;
 }	t_msg_info;
 
@@ -129,7 +129,7 @@ typedef struct	s_thread_data
 	t_start			*start;
 	unsigned long	start_timestamp;
 
-	int 			philo_index;
+	int 			philo_i;
 	t_philo			*philo;
 	t_forkex		*left_forkex;
 	t_forkex		*right_forkex;
@@ -156,13 +156,13 @@ void	philo_think(
 int	philo_sleep(
 	t_thread_data *episteme,
 	unsigned long *last_eaten,
-	int philo_index
+	int philo_i
 );
 
 int	philo_eat(
 	t_thread_data *episteme,
 	unsigned long *last_eaten,
-	int	philo_index,
+	int	philo_i,
 	int *forks_held
 );
 /*	endof States	*/
@@ -185,6 +185,7 @@ void	*panopticon(
 	void *data
 );
 /*	endof Panopticon	*/
+
 /*		Timestamping		*/
 unsigned long	get_start_timestamp(
 	void
@@ -194,9 +195,16 @@ unsigned long	get_timestamp_in_ms(
 	unsigned long	start_timestamp
 );
 
+int	log_to_str(
+	t_panopticon_data *panopticon_data,
+	t_msg_info_local *msg_info,
+	char *msg_buffer,
+	int	*i
+);
+
 void	log_action(
 	t_thread_data *episteme,
-	int philo_index,
+	int philo_i,
 	t_msg_type msg_type,
 	unsigned long timestamp
 );
@@ -238,15 +246,31 @@ int	philo_putstr_fd(
 	char	*str
 );
 
+void	philo_memcpy(
+	char *src,
+	char *dest,
+	int count
+);
+
+int	philo_ultoa(
+	unsigned long	var,
+	char *str
+);
+
+int	philo_putstr_fd(
+	int		fd,
+	char	*str
+);
+
 int		philo_atoi(
 
 	unsigned char	*str
 );
 
-void	*philo_calloc(
-	size_t nmemb,
-	size_t size
-);
+//void	*philo_calloc(
+//	size_t nmemb,
+//	size_t size
+//);
 /*		endof Utils		*/
 
 /*		Test Functions (COMMENT THEM OUT)			*/

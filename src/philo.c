@@ -32,7 +32,7 @@ int	check_if_dead(
 		episteme->start->run_simulation = false;
 		pthread_mutex_unlock(episteme->start->mutex);
 		if (do_log == true)
-			log_action(episteme, episteme->philo_index, MSG_DEAD, timestamp);
+			log_action(episteme, episteme->philo_i, MSG_DEAD, timestamp);
 		return (1);
 	}
 	return (0);
@@ -55,12 +55,12 @@ int	routine(
 	if (*forks_held == 2)
 	{
 		*episteme->philo = EATING;
-		stop = philo_eat(episteme, last_eaten, episteme->philo_index, forks_held);
+		stop = philo_eat(episteme, last_eaten, episteme->philo_i, forks_held);
 		if (stop == 1)
 			return (1);
 		if (episteme->meal_count != NO_LIMIT)
 			(*times_eaten)++;
-		stop = philo_sleep(episteme, last_eaten, episteme->philo_index);
+		stop = philo_sleep(episteme, last_eaten, episteme->philo_i);
 		if (stop == 1)
 			return (1);
 	}	
@@ -164,7 +164,6 @@ int	prepare_simulation(
 {
 	t_start				start;
 	pthread_mutex_t		start_mutex;
-	//t_thread_data		*episteme;
 
 	t_thread_data		episteme[PHILO_BUF_MAX];
 	t_panopticon_data	panopticon_data;
@@ -173,7 +172,6 @@ int	prepare_simulation(
 	unsigned long		log_index;
 	pthread_mutex_t		log_mutex;
 
-	// calloc episteme w/e
 	pthread_mutex_init(&start_mutex, NULL);
 	pthread_mutex_init(&log_mutex, NULL);
 	start.run_simulation = false;
@@ -195,8 +193,6 @@ int	main(
 {
 	t_philo_errno	err_check;
 	t_philo_args	philo_args;
-	//t_philo			*philosophers;
-	//t_forkex		*forkexes;
 	t_philo			philosophers[PHILO_BUF_MAX];
 	t_forkex		forkexes[PHILO_BUF_MAX];
 
@@ -205,12 +201,8 @@ int	main(
 	err_check = set_philo_args(&philo_args,	argv);
 	if (err_check != success)
 		return (philo_exit(err_check));
-	//philosophers = NULL;
-	//forkexes = NULL;
 	instantiate_subjects_and_objects(philo_args, philosophers, forkexes);
 	TEST_print_args(&philo_args);
 	prepare_simulation(philo_args, philosophers, forkexes);
-	//free(philosophers);
-	//free(forkexes);
 	philo_exit(success);
 }

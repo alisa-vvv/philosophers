@@ -6,7 +6,7 @@
 //   By: avaliull <avaliull@student.codam.nl>        +#+                      //
 //                                                  +#+                       //
 //   Created: 2025/09/15 19:50:28 by avaliull     #+#    #+#                  //
-//   Updated: 2025/09/15 19:53:06 by avaliull     ########   odam.nl          //
+//   Updated: 2025/10/01 15:09:25 by avaliull     ########   odam.nl          //
 //                                                                            //
 // ************************************************************************** //
 
@@ -45,7 +45,7 @@ int	construct_paradigm(
 			episteme[i].right_forkex = &forkexes[i + 1];
 		else
 			episteme[i].right_forkex = forkexes;
-		episteme[i].philo_index = i;
+		episteme[i].philo_i = i;
 	}
 	return (0);
 }
@@ -58,13 +58,6 @@ int	instantiate_subjects_and_objects(
 {
 	int	i;
 
-	//*philosophers = philo_calloc(philo_args.philo_count, sizeof(t_philo));
-	//*forkexes = philo_calloc(philo_args.philo_count, sizeof(t_forkex));
-	//if (!*philosophers || !*forkexes)
-	//{
-	//	printf("malloc error!\n");
-	//	return (1);
-	//}
 	i = -1;
 	while (++i < philo_args.philo_count)
 	{
@@ -87,7 +80,6 @@ t_philo_errno	set_philo_args(
 	if (args->time_to_die <= 0 || args->time_to_eat <= 0
 		|| args->time_to_sleep <= 0)
 	 	return (invalid_argument);
-	//args->time_to_die *= 1000;
 	args->time_to_eat *= 1000;
 	args->time_to_sleep *= 1000;
 	if (argv[5])

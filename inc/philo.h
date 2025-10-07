@@ -208,16 +208,6 @@ void	log_action(
 /*	endof Timestamping		*/
 
 /*		Variable setup		*/
-int	construct_paradigm(
-	t_thread_data *episteme,
-	pthread_mutex_t *log_mutex,
-	unsigned long *log_index,
-	unsigned long *log_arr,
-	t_philo *philosophers,
-	t_philo_args philo_args,
-	t_forkex *forkexes,
-	t_start *start
-);
 int	instantiate_subjects_and_objects(
 	t_philo_args philo_args,
 	t_philo *philosophers,

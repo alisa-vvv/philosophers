@@ -133,9 +133,14 @@ typedef struct	s_thread_data
 }	t_thread_data;
 
 
-int	check_simulation_end(
-	t_thread_data	*episteme
+/*		Philo threads	*/
+int	run_threads(
+	t_thread_data *episteme,
+	t_panopticon_data *panopticon_data,
+	t_philo_args philo_args,
+	t_start *start
 );
+/*	endof Philo threads	*/
 
 /*		States		*/
 int	check_if_dead(
@@ -173,6 +178,12 @@ void	find_free_forks(
 /*		Panopticon		*/
 void	*panopticon(
 	void *data
+);
+int	logger_loop(
+	t_panopticon_data *const panopticon_data,
+	t_msg_buf *msg_buf,
+	int	*i,
+	unsigned long *loop_stamp
 );
 /*	endof Panopticon	*/
 

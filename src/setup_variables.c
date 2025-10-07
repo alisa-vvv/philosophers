@@ -6,7 +6,7 @@
 //   By: avaliull <avaliull@student.codam.nl>        +#+                      //
 //                                                  +#+                       //
 //   Created: 2025/09/15 19:50:28 by avaliull     #+#    #+#                  //
-//   Updated: 2025/10/01 15:09:25 by avaliull     ########   odam.nl          //
+//   Updated: 2025/10/07 15:59:49 by avaliull     ########   odam.nl          //
 //                                                                            //
 // ************************************************************************** //
 
@@ -33,7 +33,6 @@ int	construct_paradigm(
 		episteme[i].log_index = log_index;
 		episteme[i].log_mutex = log_mutex;
 		episteme[i].log_arr = log_arr;
-		//episteme[i].msg_info = msg_info;
 		episteme[i].philo = &philosophers[i];
 		episteme[i].philo_count = philo_args.philo_count;
 		episteme[i].time_to_die = philo_args.time_to_die;

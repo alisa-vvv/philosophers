@@ -6,13 +6,38 @@
 //   By: avaliull <avaliull@student.codam.nl>        +#+                      //
 //                                                  +#+                       //
 //   Created: 2025/09/15 19:42:24 by avaliull     #+#    #+#                  //
-//   Updated: 2025/10/01 15:37:42 by avaliull     ########   odam.nl          //
+//   Updated: 2025/10/07 16:22:12 by avaliull     ########   odam.nl          //
 //                                                                            //
 // ************************************************************************** //
 
 #include "philo.h"
 #include <pthread.h>
 #include <sys/time.h>
+
+int	check_if_dead(
+	t_thread_data *episteme,
+	unsigned long *last_eaten
+)
+{
+	unsigned long	timestamp;
+	bool			do_log;
+
+	timestamp = get_timestamp_in_ms(episteme->start_timestamp);
+	if (timestamp - *last_eaten > episteme->time_to_die)
+	{
+		pthread_mutex_lock(episteme->start->mutex);
+		if (episteme->start->run_simulation == false)
+			do_log = false;
+		else
+			do_log = true;
+		episteme->start->run_simulation = false;
+		pthread_mutex_unlock(episteme->start->mutex);
+		if (do_log == true)
+			log_action(episteme, episteme->philo_i, MSG_DEAD, timestamp);
+		return (1);
+	}
+	return (0);
+}
 
 void	philo_think(
 	t_thread_data *episteme
@@ -28,8 +53,6 @@ void	philo_think(
 	}
 }
 
-//optimize all of this
-		#include <stdio.h> // kfldsfjkdfjksd
 int	philo_sleep(
 	t_thread_data *episteme,
 	unsigned long *last_eaten,
@@ -55,9 +78,6 @@ int	philo_sleep(
 	return (0);
 }
 
-// conversions need to be changed all around to avoid useless calculations
-// so time_to_eat_in_ms probably not needed
-// add checks for end of simulation?
 int	philo_eat(
 	t_thread_data *episteme,
 	unsigned long *last_eaten,
@@ -90,4 +110,3 @@ int	philo_eat(
 	*forks_held = 0;
 	return (0);
 }
-

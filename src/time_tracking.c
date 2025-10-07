@@ -6,7 +6,7 @@
 //   By: avaliull <avaliull@student.codam.nl>        +#+                      //
 //                                                  +#+                       //
 //   Created: 2025/09/15 19:39:18 by avaliull     #+#    #+#                  //
-//   Updated: 2025/10/01 15:02:37 by avaliull     ########   odam.nl          //
+//   Updated: 2025/10/07 16:25:35 by avaliull     ########   odam.nl          //
 //                                                                            //
 // ************************************************************************** //
 
@@ -44,7 +44,7 @@ void	log_action(
 }
 
 unsigned long	get_timestamp_in_ms(
-	unsigned long	start_timestamp
+	unsigned long start_timestamp
 )
 {
 	struct timeval	current_time;

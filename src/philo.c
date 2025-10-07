@@ -1,117 +1,6 @@
-#include "libft.h"
 #include "philo.h"
-#include <stddef.h>
-#include <stdbool.h>
-#include <stdio.h> // - printf
-#include <unistd.h> // - write, usleep. IN HEADER
-#include <string.h> // - memset
-#include <stdlib.h> // for malloc
-#include <sys/time.h> // for gettimeofday
-#include <pthread.h> /* for all pthread_ things:
-* pthread_create, pthread_detach, pthread_join, pthread_mutex_init,
-* pthread_mutex_destroy, pthread_mutex_lock,
-* pthread_mutex_unlock
-*/
-
-int	check_if_dead(
-	t_thread_data *episteme,
-	unsigned long *last_eaten
-)
-{
-	unsigned long	timestamp;
-	bool			do_log;
-
-	timestamp = get_timestamp_in_ms(episteme->start_timestamp);
-	if (timestamp - *last_eaten > episteme->time_to_die)
-	{
-		pthread_mutex_lock(episteme->start->mutex);
-		if (episteme->start->run_simulation == false)
-			do_log = false;
-		else
-			do_log = true;
-		episteme->start->run_simulation = false;
-		pthread_mutex_unlock(episteme->start->mutex);
-		if (do_log == true)
-			log_action(episteme, episteme->philo_i, MSG_DEAD, timestamp);
-		return (1);
-	}
-	return (0);
-}
-
-int	routine(
-	t_thread_data *episteme,
-	unsigned long *last_eaten,
-	int *times_eaten,
-	int *forks_held
-)
-{
-	int				stop;
-	unsigned long	timestamp;
-
-	philo_think(episteme);
-	find_free_forks(episteme, forks_held);
-	if (check_if_dead(episteme, last_eaten) == 1)
-		return (1);
-	if (*forks_held == 2)
-	{
-		*episteme->philo = EATING;
-		stop = philo_eat(episteme, last_eaten, episteme->philo_i, forks_held);
-		if (stop == 1)
-			return (1);
-		if (episteme->meal_count != NO_LIMIT)
-			(*times_eaten)++;
-		stop = philo_sleep(episteme, last_eaten, episteme->philo_i);
-		if (stop == 1)
-			return (1);
-	}	
-	if (check_if_dead(episteme, last_eaten) == 1)
-		return (1);
-	return (0);
-}
-
-int	check_simulation_end(
-	t_thread_data	*episteme
-)
-{
-	pthread_mutex_lock(episteme->start->mutex);
-	if (episteme->start->run_simulation == false)
-	{
-		pthread_mutex_unlock(episteme->start->mutex);
-		return (1);
-	}
-	pthread_mutex_unlock(episteme->start->mutex);
-	return (0);
-}
-
-void	*praxis(
-	void	*data
-)
-{
-	t_thread_data	*episteme = (t_thread_data *) data;
-	unsigned long	last_eaten;
-	int				times_eaten;
-	int				total_meals;
-	int				forks_held;
-
-	last_eaten = 0;
-	times_eaten = 0;
-	forks_held = 0;
-	pthread_mutex_lock(episteme->start->mutex);
-	episteme->start_timestamp = episteme->start->timestamp;
-	pthread_mutex_unlock(episteme->start->mutex);
-	if (episteme->meal_count >= 0)
-		total_meals = episteme->meal_count;
-	else if (episteme->meal_count == NO_LIMIT)
-		total_meals = 1;
-	while (times_eaten < total_meals)
-	{
-		if (check_simulation_end(episteme) == 1)
-			return (NULL);
-		if (routine(episteme, &last_eaten, &times_eaten, &forks_held) == 1)
-			return (NULL);
-	}
-	return (NULL);
-}
+#include <string.h>
+#include <pthread.h> 
 
 void	prepare_surveillance_data(
 	t_panopticon_data *panopticon_data,
@@ -129,33 +18,10 @@ void	prepare_surveillance_data(
 	panopticon_data->start = start;
 }
 
-int	run_threads(
-	t_thread_data *episteme,
-	t_panopticon_data *panopticon_data,
-	t_philo_args philo_args,
-	t_start *start
-)
-{
-	pthread_t	panopticon_thread;
-	pthread_t	philo_threads[PHILO_BUF_MAX];
-	int			i;
-
-	pthread_mutex_lock(start->mutex);
-	pthread_create(&panopticon_thread, NULL, panopticon, panopticon_data);
-	i = -1;
-	while (++i < philo_args.philo_count)
-		pthread_create(&philo_threads[i], NULL, praxis, &episteme[i]);
-	i = -1;
-	usleep(1000);
-	start->run_simulation = true;
-	start->timestamp = get_start_timestamp();
-	pthread_mutex_unlock(start->mutex);
-	pthread_join(panopticon_thread, NULL);
-	while (++i < philo_args.philo_count)
-		pthread_join(philo_threads[i], NULL);
-	return (0);
-}
-
+// 	1. mutex init, add to panopticon and episteme data, calls:
+//		2. setup log stuff, add to panopticon and episteme
+//			3. fill values?
+//				4. call start
 int	prepare_simulation(
 	t_philo_args philo_args,
 	t_philo *philosophers,
@@ -164,7 +30,6 @@ int	prepare_simulation(
 {
 	t_start				start;
 	pthread_mutex_t		start_mutex;
-
 	t_thread_data		episteme[PHILO_BUF_MAX];
 	t_panopticon_data	panopticon_data;
 
@@ -202,7 +67,6 @@ int	main(
 	if (err_check != success)
 		return (philo_exit(err_check));
 	instantiate_subjects_and_objects(philo_args, philosophers, forkexes);
-	TEST_print_args(&philo_args);
 	prepare_simulation(philo_args, philosophers, forkexes);
 	philo_exit(success);
 }

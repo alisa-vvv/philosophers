@@ -6,7 +6,7 @@
 //   By: avaliull <avaliull@student.codam.nl>        +#+                      //
 //                                                  +#+                       //
 //   Created: 2025/09/15 19:46:02 by avaliull     #+#    #+#                  //
-//   Updated: 2025/09/15 19:46:17 by avaliull     ########   odam.nl          //
+//   Updated: 2025/10/07 16:24:02 by avaliull     ########   odam.nl          //
 //                                                                            //
 // ************************************************************************** //
 
@@ -43,4 +43,3 @@ void	find_free_forks(
 	pthread_mutex_lock(&episteme->right_forkex->mutex);
 	take_a_fork(episteme, episteme->right_forkex, forks_held);
 }
-

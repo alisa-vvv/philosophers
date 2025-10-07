@@ -24,7 +24,7 @@
 # define MSG_BUF_MAX 8192
 # define LOG_BUF_MAX 12288
 
-typedef	enum e_philo_errno
+typedef	enum e_philo_errno // get rid of this
 {
 	success,
 	wrong_argc,
@@ -61,7 +61,7 @@ typedef struct	s_forkex
 	pthread_mutex_t	mutex;
 }	t_forkex;
 
-// for future message buffer integration
+/*		Message Buffer		*/
 typedef enum	e_msg_type
 {
 	MSG_NULL = 0,
@@ -72,15 +72,6 @@ typedef enum	e_msg_type
 	MSG_DEAD = 5,
 	DONE_EATING = 6,
 }	t_msg_type;
-
-typedef struct	s_msg_info_local
-{
-	t_msg_type		msg_type;
-	unsigned long	timestamp;
-	int				philo_i;
-	int				log_index;
-}	t_msg_info_local;
-
 typedef struct	s_msg_info
 {
 	t_msg_type		msg_type;
@@ -88,17 +79,18 @@ typedef struct	s_msg_info
 	int				philo_i;
 	int				log_index;
 }	t_msg_info;
-
-
-//char	messsage_arr[4096];
-//
-
 typedef struct	s_start
 {
 	unsigned long	timestamp;
 	bool			run_simulation;
 	pthread_mutex_t	*mutex;
 }	t_start;
+typedef struct	s_msg_buf
+{
+	int		i;
+	char	arr[MSG_BUF_MAX];
+}	t_msg_buf;
+/*	endof Message Buffer	*/
 
 typedef struct	s_panopticon_data
 {
@@ -144,6 +136,7 @@ typedef struct	s_thread_data
 int	check_simulation_end(
 	t_thread_data	*episteme
 );
+
 /*		States		*/
 int	check_if_dead(
 	t_thread_data *episteme,
@@ -152,13 +145,11 @@ int	check_if_dead(
 void	philo_think(
 	t_thread_data *episteme
 );
-
 int	philo_sleep(
 	t_thread_data *episteme,
 	unsigned long *last_eaten,
 	int philo_i
 );
-
 int	philo_eat(
 	t_thread_data *episteme,
 	unsigned long *last_eaten,
@@ -173,7 +164,6 @@ void	take_a_fork(
 	t_forkex *forkex,
 	int *forks_held
 );
-
 void	find_free_forks(
 	t_thread_data *episteme,
 	int	*forks_held
@@ -190,18 +180,14 @@ void	*panopticon(
 unsigned long	get_start_timestamp(
 	void
 );
-
 unsigned long	get_timestamp_in_ms(
 	unsigned long	start_timestamp
 );
-
 int	log_to_str(
 	t_panopticon_data *panopticon_data,
-	t_msg_info_local *msg_info,
-	char *msg_buffer,
-	int	*i
+	t_msg_info *msg_info,
+	t_msg_buf *msg_buf
 );
-
 void	log_action(
 	t_thread_data *episteme,
 	int philo_i,
@@ -221,13 +207,11 @@ int	construct_paradigm(
 	t_forkex *forkexes,
 	t_start *start
 );
-
 int	instantiate_subjects_and_objects(
 	t_philo_args philo_args,
 	t_philo *philosophers,
 	t_forkex *forkexes
 );
-
 t_philo_errno	set_philo_args(
 	t_philo_args *args,
 	char **argv
@@ -245,33 +229,24 @@ int	philo_putstr_fd(
 	int		fd,
 	char	*str
 );
-
 void	philo_memcpy(
 	char *src,
 	char *dest,
 	int count
 );
-
 int	philo_ultoa(
 	unsigned long	var,
 	char *str
 );
-
 int	philo_putstr_fd(
 	int		fd,
 	char	*str
 );
-
 int		philo_atoi(
 
 	unsigned char	*str
 );
-
-//void	*philo_calloc(
-//	size_t nmemb,
-//	size_t size
-//);
-/*		endof Utils		*/
+/*	endof Utils			*/
 
 /*		Test Functions (COMMENT THEM OUT)			*/
 void			TEST_print_args(

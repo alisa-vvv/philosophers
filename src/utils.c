@@ -29,7 +29,7 @@ int	philo_putstr_fd(
 }
 
 int	philo_ultoa(
-	unsigned long	var,
+	unsigned long var,
 	char *str
 )
 {

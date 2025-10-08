@@ -24,9 +24,10 @@
 # define MSG_BUF_MAX 8192
 # define LOG_BUF_MAX 12288
 
-typedef	enum e_philo_errno // get rid of this
+typedef	enum e_philo_errno
 {
 	success,
+	death,
 	wrong_argc,
 	invalid_argument,
 	mutex_init_fail,
@@ -34,6 +35,8 @@ typedef	enum e_philo_errno // get rid of this
 	mutex_unlock_fail,
 	thread_create_fail,
 	thread_join_fail,
+	log_buf_overflow,
+	msg_buf_overflow,
 }	t_philo_errno;
 
 typedef struct s_philo_args
@@ -145,6 +148,9 @@ int	run_threads(
 	const t_philo_args philo_args,
 	t_start *const start
 );
+void	*praxis(
+	void *data
+);
 /*	endof Philo threads	*/
 
 /*		States		*/
@@ -169,12 +175,12 @@ int	philo_eat(
 /*	endof States	*/
 
 /*		Fork management		*/
-void	take_a_fork(
+int	take_a_fork(
 	t_thread_data *const episteme,
 	t_forkex *const forkex,
 	int *const forks_held
 );
-void	find_free_forks(
+int	find_free_forks(
 	t_thread_data *const episteme,
 	int	*const forks_held
 );
@@ -204,7 +210,7 @@ int	log_to_str(
 	t_msg_info *const msg_info,
 	t_msg_buf *const msg_buf
 );
-void	log_action(
+int	log_action(
 	t_thread_data *const episteme,
 	int philo_i,
 	t_msg_type msg_type,

@@ -42,7 +42,7 @@ static void	write_and_clear_msg_buf(
 		memset(msg_buf->arr, 0, msg_buf->i + 1);
 		msg_buf->i = 0;
 	}
-	*loop_stamp = get_timestamp_in_ms(panopticon_data->start_timestamp);
+	*loop_stamp = get_timestamp(panopticon_data->start_stamp);
 }
 
 static int	find_last_log(
@@ -81,9 +81,9 @@ static void	adjust_index(
 
 int	logger_loop(
 	t_panopticon_data *const panopticon_data,
-	t_msg_buf *msg_buf,
-	int	*i,
-	unsigned long *loop_stamp
+	t_msg_buf *const msg_buf,
+	int	*const i,
+	unsigned long *const loop_stamp
 )
 {
 	int			goal;
@@ -96,8 +96,8 @@ int	logger_loop(
 		get_log_values(panopticon_data, &msg_info, *i);
 		if (log_to_str(panopticon_data, &msg_info, msg_buf) != 0)
 			return (1);
-		else if (get_timestamp_in_ms(panopticon_data->start_timestamp) - *loop_stamp > 25
-				|| msg_buf->i > (MSG_BUF_MAX / 4) * 3)
+		else if (get_timestamp(panopticon_data->start_stamp) - *loop_stamp > 25
+			|| msg_buf->i > (MSG_BUF_MAX / 4) * 3)
 			write_and_clear_msg_buf(panopticon_data, msg_buf, loop_stamp);
 		if (panopticon_data->philos_sated == panopticon_data->philo_count)
 		{

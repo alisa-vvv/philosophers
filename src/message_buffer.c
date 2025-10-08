@@ -20,11 +20,11 @@
 //{
 //	unsigned long TEST_post_stamp = 0;
 //	unsigned long TEST_pre_stamp = 0;
-//	TEST_pre_stamp = get_timestamp_in_ms(panopticon_data->start_timestamp);
+//	TEST_pre_stamp = get_timestamp(panopticon_data->start_stamp);
 //
 //	write(STDOUT_FILENO, msg_buf->arr, msg_buf->i + 7); // leave only this
 //
-//	TEST_post_stamp = get_timestamp_in_ms(panopticon_data->start_timestamp);
+//	TEST_post_stamp = get_timestamp(panopticon_data->start_stamp);
 //	write(STDOUT_FILENO, "\npost msg: ", 11);
 //	char	post_msg[24];
 //	memset(post_msg, 0, 24);
@@ -51,7 +51,7 @@ static int	handle_death(
 
 static void	count_meals(
 	t_panopticon_data *const panopticon_data,
-	int	philo_i
+	int philo_i
 )
 {
 	panopticon_data->meals_eaten[philo_i]++;
@@ -61,8 +61,8 @@ static void	count_meals(
 
 int	log_to_str(
 	t_panopticon_data *const panopticon_data,
-	t_msg_info *msg_info,
-	t_msg_buf *msg_buf
+	t_msg_info *const msg_info,
+	t_msg_buf *const msg_buf
 )
 {
 	msg_buf->i += philo_ultoa(msg_info->timestamp, &msg_buf->arr[msg_buf->i]);

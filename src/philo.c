@@ -3,9 +3,9 @@
 #include <pthread.h> 
 
 static void	prepare_surveillance_data(
-	t_panopticon_data *panopticon_data,
+	t_panopticon_data *const panopticon_data,
 	t_philo_args philo_args,
-	t_start *start
+	t_start *const start
 )
 {
 	memset(panopticon_data->meals_eaten, 0, PHILO_BUF_MAX);
@@ -17,19 +17,20 @@ static void	prepare_surveillance_data(
 
 static int	log_setup_sim_run(
 	t_panopticon_data *const panopticon_data,
-	t_thread_data *episteme,
+	t_thread_data *const episteme,
 	t_philo_args philo_args,
-	t_start *start
+	t_start *const start
 )
 {
-	unsigned long		log_arr[LOG_BUF_MAX];
-	unsigned long		log_index;
-	pthread_mutex_t		log_mutex;
-	int	i;
+	unsigned long	log_arr[LOG_BUF_MAX];
+	unsigned long	log_index;
+	pthread_mutex_t	log_mutex;
+	int				i;
 
 	memset(log_arr, 0, LOG_BUF_MAX);
 	log_index = 0;
-	pthread_mutex_init(&log_mutex, NULL);
+	if (pthread_mutex_init(&log_mutex, NULL) != 0)
+		return (mutex_init_fail);
 	panopticon_data->log_index = &log_index;
 	panopticon_data->log_mutex = &log_mutex;
 	panopticon_data->log_arr = log_arr;
@@ -40,15 +41,14 @@ static int	log_setup_sim_run(
 		episteme[i].log_mutex = &log_mutex;
 		episteme[i].log_arr = log_arr;
 	}
-	run_threads(episteme, panopticon_data, philo_args, start);
-	return (0);
+	return (run_threads(episteme, panopticon_data, philo_args, start));
 }
 
 static void	construct_paradigm(
-	t_thread_data *episteme,
+	t_thread_data *const episteme,
 	t_philo_args philo_args,
-	t_philo *philosophers,
-	t_forkex *forkexes
+	t_philo *const philosophers,
+	t_forkex *const forkexes
 )
 {
 	int	i;
@@ -73,8 +73,8 @@ static void	construct_paradigm(
 
 static int	prepare_and_run_simulation(
 	t_philo_args philo_args,
-	t_philo *philosophers,
-	t_forkex *forkexes
+	t_philo *const philosophers,
+	t_forkex *const forkexes
 )
 {
 	t_start				start;
@@ -83,11 +83,11 @@ static int	prepare_and_run_simulation(
 	t_panopticon_data	panopticon_data;
 	int					i;
 
-	pthread_mutex_init(&start_mutex, NULL);
+	if (pthread_mutex_init(&start_mutex, NULL) != 0)
+		return (mutex_init_fail);
 	start.run_simulation = false;
 	start.timestamp = 0;
 	start.mutex = &start_mutex;
-	panopticon_data.start = &start;
 	i = -1;
 	while (++i < philo_args.philo_count)
 		episteme[i].start = &start;
@@ -97,21 +97,25 @@ static int	prepare_and_run_simulation(
 }
 
 int	main(
-	int argc,
-	char **argv
+	const int argc,
+	const char *const *const argv
 )
 {
-	t_philo_errno	err_check;
+	t_philo_errno	err;
 	t_philo_args	philo_args;
 	t_philo			philosophers[PHILO_BUF_MAX];
 	t_forkex		forkexes[PHILO_BUF_MAX];
 
 	if (argc != 5 && argc != 6)
 		return (philo_exit(wrong_argc));
-	err_check = set_philo_args(&philo_args,	argv);
-	if (err_check != success)
-		return (philo_exit(err_check));
-	instantiate_subjects_and_objects(philo_args, philosophers, forkexes);
-	prepare_and_run_simulation(philo_args, philosophers, forkexes);
+	err = set_philo_args(&philo_args,	argv);
+	if (err != success)
+		return (philo_exit(err));
+	err = instantiate_subjects_and_objects(philo_args, philosophers, forkexes);
+	if (err != success)
+		philo_exit(mutex_init_fail);
+	err = prepare_and_run_simulation(philo_args, philosophers, forkexes);
+	if (err != success)
+		philo_exit(err);
 	philo_exit(success);
 }

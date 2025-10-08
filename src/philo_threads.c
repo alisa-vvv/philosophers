@@ -6,7 +6,7 @@
 //   By: avaliull <avaliull@student.codam.nl>        +#+                      //
 //                                                  +#+                       //
 //   Created: 2025/10/08 14:51:27 by avaliull     #+#    #+#                  //
-//   Updated: 2025/10/08 14:51:34 by avaliull     ########   odam.nl          //
+//   Updated: 2025/10/08 17:14:04 by avaliull     ########   odam.nl          //
 //                                                                            //
 // ************************************************************************** //
 
@@ -72,6 +72,8 @@ static void	*praxis(
 	times_eaten = 0;
 	forks_held = 0;
 	pthread_mutex_lock(episteme->start->mutex);
+	if (episteme->start->run_simulation == false) // in case of error during setup
+		return (NULL);
 	episteme->start_stamp = episteme->start->timestamp;
 	pthread_mutex_unlock(episteme->start->mutex);
 	if (episteme->meal_count >= 0)
@@ -86,6 +88,71 @@ static void	*praxis(
 			return (NULL);
 	}
 	return (NULL);
+}
+
+static int	try_join(
+	pthread_t *const thread,
+	t_start *const start
+)
+{
+	if (pthread_join(*thread, NULL) != 0)
+	{
+		if (pthread_mutex_lock(start->mutex) != 0)
+			return (thread_join_fail);
+		start->run_simulation = false;
+		pthread_mutex_unlock(start->mutex);
+		return (thread_join_fail);
+	}
+	return (0);
+}
+
+static int	join_threads(
+	pthread_t *const panopticon_thread,
+	pthread_t *const philo_threads,
+	t_start *const start,
+	const t_philo_args philo_args
+)
+{
+	int	err;
+	int	i;
+
+	if (pthread_mutex_unlock(start->mutex) != 0)
+	{
+		start->run_simulation = false;
+		return (mutex_unlock_fail);
+	}
+	err = try_join(panopticon_thread, start);
+	if (err != 0)
+		return (err);
+	i = -1;
+	while (++i < philo_args.philo_count)
+	{
+		err = try_join(&philo_threads[i], start);
+		if (err != 0)
+			return (err);
+	}
+	return (0);
+}
+
+static int	create_philo_threads(
+	const t_philo_args philo_args,
+	pthread_t *philo_threads,
+	t_thread_data *const episteme,
+	t_start *const start
+)
+{
+	int	i;
+
+	i = -1;
+	while (++i < philo_args.philo_count)
+	{
+		if (pthread_create(&philo_threads[i], NULL, praxis, &episteme[i]) != 0)
+		{
+			pthread_mutex_unlock(start->mutex);
+			return (thread_create_fail);
+		}
+	}
+	return (0);
 }
 
 int	run_threads(
@@ -105,18 +172,13 @@ int	run_threads(
 	if (pthread_create(&panopticon_thread, NULL, panopticon, panopticon_data)
 		!= 0)
 		return (thread_create_fail);
-	i = -1;
-	while (++i < philo_args.philo_count)
-		pthread_create(&philo_threads[i], NULL, praxis, &episteme[i]);
-	i = -1;
+	if (create_philo_threads(philo_args, philo_threads, episteme, start) != 0)
+	{
+		pthread_mutex_unlock(start->mutex);
+		return (thread_create_fail);
+	}
 	usleep(1000);
 	start->run_simulation = true;
 	start->timestamp = get_start_stamp();
-	// add error condition to start variable in case of nonsense, handle it
-	pthread_mutex_unlock(start->mutex);
-	if (pthread_join(panopticon_thread, NULL) != 0)
-		return (thread_join_fail);
-	while (++i < philo_args.philo_count)
-		pthread_join(philo_threads[i], NULL);
-	return (0);
+	return (join_threads(&panopticon_thread, philo_threads, start, philo_args));
 }

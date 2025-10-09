@@ -158,7 +158,7 @@ int	check_if_dead(
 	t_thread_data *const episteme,
 	unsigned long *const last_eaten
 );
-void	philo_think(
+int	philo_think(
 	t_thread_data *const episteme
 );
 int	philo_sleep(

@@ -19,6 +19,7 @@ int	take_a_fork(
 )
 {
 	unsigned long	timestamp;
+	int				err;
 
 	if (forkex->fork == UNUSED
 		|| (forkex->fork == NEVER_USED && episteme->philo_i % 2 == 0))
@@ -28,7 +29,9 @@ int	take_a_fork(
 		if (pthread_mutex_unlock(&forkex->mutex) != 0)
 			return (mutex_unlock_fail);
 		timestamp = get_timestamp(episteme->start_stamp);
-		log_action(episteme, episteme->philo_i, MSG_FORK, timestamp); // NEED ERROR CHECK HERE
+		err = log_action(episteme, episteme->philo_i, MSG_FORK, timestamp);
+		if (err != 0)
+			return (err);
 	}
 	else
 	{

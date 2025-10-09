@@ -108,7 +108,7 @@ int	main(
 
 	if (argc != 5 && argc != 6)
 		return (philo_exit(wrong_argc));
-	err = set_philo_args(&philo_args, argv);
+	err = set_philo_args(&philo_args,	argv);
 	if (err != success)
 		return (philo_exit(err));
 	err = instantiate_subjects_and_objects(philo_args, philosophers, forkexes);

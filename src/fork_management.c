@@ -12,7 +12,7 @@
 
 #include "philo.h"
 
-int	take_a_fork(
+void	take_a_fork(
 	t_thread_data *const episteme,
 	t_forkex *const forkex,
 	int *const forks_held
@@ -21,39 +21,25 @@ int	take_a_fork(
 	unsigned long	timestamp;
 
 	if (forkex->fork == UNUSED
-		|| (forkex->fork == NEVER_USED && episteme->philo_i % 2 == 0))
+			|| (forkex->fork == NEVER_USED && episteme->philo_i % 2 == 0))
 	{
 		forkex->fork = USED;
 		(*forks_held)++;
-		if (pthread_mutex_unlock(&forkex->mutex) != 0)
-			return (mutex_unlock_fail);
+		pthread_mutex_unlock(&forkex->mutex);
 		timestamp = get_timestamp(episteme->start_stamp);
-		log_action(episteme, episteme->philo_i, MSG_FORK, timestamp); // NEED ERROR CHECK HERE
+		log_action(episteme, episteme->philo_i, MSG_FORK, timestamp);
 	}
 	else
-	{
-		if (pthread_mutex_unlock(&forkex->mutex) != 0)
-			return (mutex_unlock_fail);
-	}
-	return (0);
+		pthread_mutex_unlock(&forkex->mutex);
 }
 
-int	find_free_forks(
+void	find_free_forks(
 	t_thread_data *const episteme,
 	int	*const forks_held
 )
 {
-	int	err_check;
-
-	if (pthread_mutex_lock(&episteme->left_forkex->mutex) != 0)
-		return (mutex_lock_fail);
-	err_check = take_a_fork(episteme, episteme->left_forkex, forks_held);
-	if (err_check != 0)
-		return (err_check);
-	if (pthread_mutex_lock(&episteme->right_forkex->mutex) != 0)
-		return (mutex_lock_fail);
-	err_check = take_a_fork(episteme, episteme->right_forkex, forks_held);
-	if (err_check != 0)
-		return (err_check);
-	return (success);
+	pthread_mutex_lock(&episteme->left_forkex->mutex);
+	take_a_fork(episteme, episteme->left_forkex, forks_held);
+	pthread_mutex_lock(&episteme->right_forkex->mutex);
+	take_a_fork(episteme, episteme->right_forkex, forks_held);
 }

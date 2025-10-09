@@ -6,7 +6,7 @@
 #    By: avaliull <avaliull@student.codam.nl>        +#+                       #
 #                                                   +#+                        #
 #    Created: 2025/05/21 19:45:55 by avaliull     #+#    #+#                   #
-#    Updated: 2025/10/08 17:31:10 by avaliull     ########   odam.nl           #
+#    Updated: 2025/10/07 16:19:21 by avaliull     ########   odam.nl           #
 #                                                                              #
 # **************************************************************************** #
 
@@ -16,7 +16,6 @@ NAME	=	philo
 CFILES	=	philo.c\
 			setup_variables.c\
 			philo_threads.c\
-			praxis.c\
 			philo_states.c\
 			fork_management.c\
 			time_tracking.c\
@@ -35,7 +34,7 @@ BUILDDIR = build/
 SRCDIR = src/
 LIBDIR = lib/
 INCDIR = inc/
-SRCDIRS = $(addprefix $(SRCDIR), philosophers_lives logging) $(SRCDIR)
+SRCDIRS = $(SRCDIR)
 
 $(SRCDIR):
 	mkdir -p $@
@@ -57,7 +56,8 @@ CPPFLAGS	= $(INCFLAGS) -MMD -MP
 
 INCFLAGS	= $(addprefix -I,$(INCLUDE))
 CFLAGS	= -Wall -Wextra -Werror -fsanitize=undefined
-INPUT	= 8 650 200 200 10
+INPUT	= 12 410 200 200 10
+
 
 -include $(OFILES:.o=.d)
 

@@ -21,7 +21,7 @@
 //TIMESTAMP += 1
 //PHILO += 2
 
-int	log_action(
+void	log_action(
 	t_thread_data *const episteme,
 	int philo_i,
 	t_msg_type msg_type,
@@ -30,20 +30,17 @@ int	log_action(
 {
 	int	msg_index;
 
-	if (pthread_mutex_lock(episteme->log_mutex) != 0)
-		return (mutex_lock_fail);
+	pthread_mutex_lock(episteme->log_mutex);
 	msg_index = *episteme->log_index;
 	if (*episteme->log_index == LOG_BUF_MAX - 3)
 		*episteme->log_index = 0;
 	else
 		*episteme->log_index = *episteme->log_index + 3;
-	assert(episteme->log_arr[msg_index] == 0); // REMOVE, ADD ACTUAL BOUNDARY CHECKING
+	assert(episteme->log_arr[msg_index] == 0); // REMOVE
 	episteme->log_arr[msg_index] = msg_type;
 	episteme->log_arr[msg_index + 1] = timestamp;
 	episteme->log_arr[msg_index + 2] = philo_i;
-	if (pthread_mutex_unlock(episteme->log_mutex) != 0)
-		return (mutex_unlock_fail);
-	return (0);
+	pthread_mutex_unlock(episteme->log_mutex);
 }
 
 unsigned long	get_timestamp(

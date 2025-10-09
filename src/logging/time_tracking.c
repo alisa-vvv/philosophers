@@ -37,18 +37,13 @@ int	log_action(
 		*episteme->log_index = 0;
 	else
 		*episteme->log_index = *episteme->log_index + 3;
-	if (episteme->log_arr[msg_index] != 0)
-	{
-		if (pthread_mutex_unlock(episteme->log_mutex) != 0)
-			return (mutex_unlock_fail);
-		return (log_buf_overflow);
-	}
+	assert(episteme->log_arr[msg_index] == 0); // REMOVE, ADD ACTUAL BOUNDARY CHECKING
 	episteme->log_arr[msg_index] = msg_type;
 	episteme->log_arr[msg_index + 1] = timestamp;
 	episteme->log_arr[msg_index + 2] = philo_i;
 	if (pthread_mutex_unlock(episteme->log_mutex) != 0)
 		return (mutex_unlock_fail);
-	return (success);
+	return (0);
 }
 
 unsigned long	get_timestamp(

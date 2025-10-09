@@ -19,16 +19,18 @@ static int	eat_and_sleep(
 	int *const forks_held
 )
 {
-	int	status;
+	int	stop;
 
   	*episteme->philo = EATING;
-  	status = philo_eat(episteme, last_eaten, episteme->philo_i, forks_held);
-  	if (status != success)
-  		return (status);
+  	stop = philo_eat(episteme, last_eaten, episteme->philo_i, forks_held);
+  	if (stop != success)
+  		return (stop);
   	if (episteme->meal_count != NO_LIMIT)
   		(*times_eaten)++;
-  	status = philo_sleep(episteme, last_eaten, episteme->philo_i);
-	return (status);
+  	stop = philo_sleep(episteme, last_eaten, episteme->philo_i);
+  	if (stop == death)
+  		return (death);
+	return (success);
 }
 
 static int	routine(// go throug hthis whole thing
@@ -38,26 +40,25 @@ static int	routine(// go throug hthis whole thing
 	int *const forks_held
 )
 {
-	int				status;
+	int				stop;
 	unsigned long	timestamp;
 
-	status = philo_think(episteme);
-	if (status != success)
-		return (status); // WHAT HAPPENS ON RETURN?
-	status = find_free_forks(episteme, forks_held);
-	if (status != success)
-		return (status); // WHAT HAPPENS ON RETURN?
-	status = check_if_dead(episteme, last_eaten);
-	if (status != success)
+	philo_think(episteme); // this
+	stop = find_free_forks(episteme, forks_held);
+	if (stop != success)
+		return (stop); // WHAT HAPPENS ON RETURN?
+	stop = check_if_dead(episteme, last_eaten); // this and everything below
+	if (stop != success)
 		return (death);
 	if (*forks_held == 2)
 	{
-		status = eat_and_sleep(episteme, last_eaten, times_eaten, forks_held);
-		if (status != success)
-			return (status);
+		stop = eat_and_sleep(episteme, last_eaten, times_eaten, forks_held); //inside here
+		if (stop != success)
+			return (death);
 	}
-	status = check_if_dead(episteme, last_eaten);
-	return (status);
+	if (check_if_dead(episteme, last_eaten) == death)
+		return (death);
+	return (success);
 }
 
 static int	check_simulation_end(
@@ -88,12 +89,6 @@ static int	wait_for_start(
 	return (0);
 }
 
-static void *check_error(
-)
-{
-	return (NULL);
-}
-
 void	*praxis(
 	void *data
 )
@@ -117,8 +112,8 @@ void	*praxis(
 	{
 		if (check_simulation_end(episteme) == 1)
 			return (NULL);
-		if (routine(episteme, &last_eaten, &times_eaten, &forks_held) != 0)
-			return (check_error()); // here
+		if (routine(episteme, &last_eaten, &times_eaten, &forks_held) == 1) // add here some error management, no 1 returns, should all be descriptive enums
+			return (NULL);
 	}
 	return (NULL);
 }

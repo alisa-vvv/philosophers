@@ -28,7 +28,7 @@ void	log_and_write(
 
 	msg_buf->i = 0;
 	i = 0;
-	loop_stamp = get_timestamp(panopticon_data->start_stamp);
+	loop_stamp = get_timestamp_in_ms(panopticon_data->start_timestamp);
 	while (1)
 	{
 		usleep(1000);
@@ -42,15 +42,15 @@ void	*panopticon(
 	void *data
 )
 {
-	t_panopticon_data *const	panopticon_data = (t_panopticon_data *) data;
-	t_msg_buf					msg_buf;
-	int							loop_check;
+	t_panopticon_data	*const panopticon_data = (t_panopticon_data *) data;
+	t_msg_buf			msg_buf;
+	int					loop_check;
 
 	memset(msg_buf.arr, 0, MSG_BUF_MAX);
 	msg_buf.i = 0;
 	pthread_mutex_lock(panopticon_data->start->mutex);
 	if (panopticon_data->start->run_simulation == true)
-		panopticon_data->start_stamp = panopticon_data->start->timestamp;
+		panopticon_data->start_timestamp = panopticon_data->start->timestamp;
 	pthread_mutex_unlock(panopticon_data->start->mutex);
 	log_and_write(panopticon_data, &msg_buf);
 	return (NULL);

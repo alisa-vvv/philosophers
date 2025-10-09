@@ -13,9 +13,9 @@
 #include "philo.h"
 
 void	take_a_fork(
-	t_thread_data *const episteme,
-	t_forkex *const forkex,
-	int *const forks_held
+	t_thread_data *episteme,
+	t_forkex *forkex,
+	int *forks_held
 )
 {
 	unsigned long	timestamp;
@@ -26,7 +26,7 @@ void	take_a_fork(
 		forkex->fork = USED;
 		(*forks_held)++;
 		pthread_mutex_unlock(&forkex->mutex);
-		timestamp = get_timestamp(episteme->start_stamp);
+		timestamp = get_timestamp_in_ms(episteme->start_timestamp);
 		log_action(episteme, episteme->philo_i, MSG_FORK, timestamp);
 	}
 	else
@@ -34,8 +34,8 @@ void	take_a_fork(
 }
 
 void	find_free_forks(
-	t_thread_data *const episteme,
-	int	*const forks_held
+	t_thread_data *episteme,
+	int	*forks_held
 )
 {
 	pthread_mutex_lock(&episteme->left_forkex->mutex);

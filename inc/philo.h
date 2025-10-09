@@ -28,11 +28,7 @@ typedef	enum e_philo_errno // get rid of this
 {
 	success,
 	wrong_argc,
-	invalid_argument,
-	mutex_init_fail,
-	mutex_lock_fail,
-	thread_create_fail,
-	thread_join_fail,
+	invalid_argument
 }	t_philo_errno;
 
 typedef struct s_philo_args
@@ -109,7 +105,7 @@ typedef struct	s_panopticon_data
 
 	t_start			*start;
 
-	unsigned long	start_stamp;
+	unsigned long	start_timestamp;
 }	t_panopticon_data;
 
 
@@ -123,7 +119,7 @@ typedef struct	s_thread_data
 	int				meal_count;
 
 	t_start			*start;
-	unsigned long	start_stamp;
+	unsigned long	start_timestamp;
 
 	int 			philo_i;
 	t_philo			*philo;
@@ -139,43 +135,43 @@ typedef struct	s_thread_data
 
 /*		Philo threads	*/
 int	run_threads(
-	t_thread_data *const episteme,
-	t_panopticon_data *const panopticon_data,
-	const t_philo_args philo_args,
-	t_start *const start
+	t_thread_data *episteme,
+	t_panopticon_data *panopticon_data,
+	t_philo_args philo_args,
+	t_start *start
 );
 /*	endof Philo threads	*/
 
 /*		States		*/
 int	check_if_dead(
-	t_thread_data *const episteme,
-	unsigned long *const last_eaten
+	t_thread_data *episteme,
+	unsigned long *last_eaten
 );
 void	philo_think(
-	t_thread_data *const episteme
+	t_thread_data *episteme
 );
 int	philo_sleep(
-	t_thread_data *const episteme,
-	unsigned long *const last_eaten,
+	t_thread_data *episteme,
+	unsigned long *last_eaten,
 	int philo_i
 );
 int	philo_eat(
-	t_thread_data *const episteme,
-	unsigned long *const last_eaten,
+	t_thread_data *episteme,
+	unsigned long *last_eaten,
 	int	philo_i,
-	int *const forks_held
+	int *forks_held
 );
 /*	endof States	*/
 
 /*		Fork management		*/
 void	take_a_fork(
-	t_thread_data *const episteme,
-	t_forkex *const forkex,
-	int *const forks_held
+	t_thread_data *episteme,
+	t_forkex *forkex,
+	int *forks_held
 );
 void	find_free_forks(
-	t_thread_data *const episteme,
-	int	*const forks_held
+	t_thread_data *episteme,
+	int	*forks_held
 );
 /*	endof Fork management	*/
 
@@ -185,26 +181,26 @@ void	*panopticon(
 );
 int	logger_loop(
 	t_panopticon_data *const panopticon_data,
-	t_msg_buf *const msg_buf,
-	int	*const i,
-	unsigned long *const loop_stamp
+	t_msg_buf *msg_buf,
+	int	*i,
+	unsigned long *loop_stamp
 );
 /*	endof Panopticon	*/
 
 /*		Timestamping		*/
-unsigned long	get_start_stamp(
+unsigned long	get_start_timestamp(
 	void
 );
-unsigned long	get_timestamp(
-	unsigned long	start_stamp
+unsigned long	get_timestamp_in_ms(
+	unsigned long	start_timestamp
 );
 int	log_to_str(
-	t_panopticon_data *const panopticon_data,
-	t_msg_info *const msg_info,
-	t_msg_buf *const msg_buf
+	t_panopticon_data *panopticon_data,
+	t_msg_info *msg_info,
+	t_msg_buf *msg_buf
 );
 void	log_action(
-	t_thread_data *const episteme,
+	t_thread_data *episteme,
 	int philo_i,
 	t_msg_type msg_type,
 	unsigned long timestamp
@@ -214,12 +210,12 @@ void	log_action(
 /*		Variable setup		*/
 int	instantiate_subjects_and_objects(
 	t_philo_args philo_args,
-	t_philo *const philosophers,
-	t_forkex *const forkexes
+	t_philo *philosophers,
+	t_forkex *forkexes
 );
 t_philo_errno	set_philo_args(
-	t_philo_args *const args,
-	const char *const *const argv
+	t_philo_args *args,
+	char **argv
 );
 /*	endof Variable setup	*/
 
@@ -231,8 +227,8 @@ t_philo_errno	philo_exit(
 
 /*		Utils			*/
 int	philo_putstr_fd(
-	int fd,
-	char *str
+	int		fd,
+	char	*str
 );
 void	philo_memcpy(
 	char *src,
@@ -240,15 +236,16 @@ void	philo_memcpy(
 	int count
 );
 int	philo_ultoa(
-	unsigned long var,
-	char *const str
+	unsigned long	var,
+	char *str
 );
 int	philo_putstr_fd(
-	int fd,
-	char *const str
+	int		fd,
+	char	*str
 );
 int		philo_atoi(
-	unsigned char *const str
+
+	unsigned char	*str
 );
 /*	endof Utils			*/
 

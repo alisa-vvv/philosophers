@@ -22,7 +22,7 @@
 //PHILO += 2
 
 void	log_action(
-	t_thread_data *const episteme,
+	t_thread_data *episteme,
 	int philo_i,
 	t_msg_type msg_type,
 	unsigned long timestamp
@@ -43,8 +43,8 @@ void	log_action(
 	pthread_mutex_unlock(episteme->log_mutex);
 }
 
-unsigned long	get_timestamp(
-	unsigned long const start_stamp
+unsigned long	get_timestamp_in_ms(
+	unsigned long start_timestamp
 )
 {
 	struct timeval	current_time;
@@ -52,19 +52,19 @@ unsigned long	get_timestamp(
 
 	gettimeofday(&current_time, NULL);
 	new_timestamp = current_time.tv_sec * 1000 + current_time.tv_usec / 1000;
-	new_timestamp -= start_stamp;
+	new_timestamp -= start_timestamp;
 	return (new_timestamp);
 }
 
-unsigned long	get_start_stamp(
+unsigned long	get_start_timestamp(
 	void
 )
 {
 	struct timeval	timestamp;
-	unsigned long	start_stamp;
+	unsigned long	start_timestamp;
 
 	gettimeofday(&timestamp, NULL);
-	start_stamp = timestamp.tv_sec * 1000 + timestamp.tv_usec / 1000;
-	return (start_stamp);
+	start_timestamp = timestamp.tv_sec * 1000 + timestamp.tv_usec / 1000;
+	return (start_timestamp);
 }
 

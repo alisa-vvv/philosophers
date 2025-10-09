@@ -15,27 +15,25 @@
 
 int	instantiate_subjects_and_objects(
 	t_philo_args philo_args,
-	t_philo *const philosophers,
-	t_forkex *const forkexes
+	t_philo *philosophers,
+	t_forkex *forkexes
 )
 {
 	int	i;
-	int	err_check;
 
 	i = -1;
 	while (++i < philo_args.philo_count)
 	{
 		forkexes[i].fork = -1;
-		if (pthread_mutex_init(&forkexes[i].mutex, NULL) != 0)
-			return (1);
+		pthread_mutex_init(&forkexes[i].mutex, NULL);
 		philosophers[i] = -1;
 	}
 	return (0);
 }
 
 t_philo_errno	set_philo_args(
-	t_philo_args *const args,
-	const char *const *const argv
+	t_philo_args *args,
+	char **argv
 )
 {
 	args->philo_count = philo_atoi((unsigned char *) argv[1]);

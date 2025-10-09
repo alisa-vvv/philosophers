@@ -93,7 +93,8 @@ static int	prepare_and_run_simulation(
 		episteme[i].start = &start;
 	prepare_surveillance_data(&panopticon_data, philo_args, &start);
 	construct_paradigm(episteme, philo_args, philosophers, forkexes);
-	return (log_setup_sim_run(&panopticon_data, episteme, philo_args, &start));
+	log_setup_sim_run(&panopticon_data, episteme, philo_args, &start);
+	return (0);
 }
 
 int	main(

@@ -6,7 +6,7 @@
 //   By: avaliull <avaliull@student.codam.nl>        +#+                      //
 //                                                  +#+                       //
 //   Created: 2025/09/15 19:42:24 by avaliull     #+#    #+#                  //
-//   Updated: 2025/10/08 16:43:37 by avaliull     ########   odam.nl          //
+//   Updated: 2025/10/07 16:22:12 by avaliull     ########   odam.nl          //
 //                                                                            //
 // ************************************************************************** //
 
@@ -78,25 +78,6 @@ int	philo_sleep(
 	return (0);
 }
 
-static int put_down_forks(
-	t_thread_data *const episteme,
-	int *const forks_held
-)
-{
-	if (pthread_mutex_lock(&episteme->right_forkex->mutex) != 0)
-		return (1);
-	episteme->right_forkex->fork = UNUSED;
-	if (pthread_mutex_unlock(&episteme->right_forkex->mutex) != 0)
-		return (1);
-	if (pthread_mutex_lock(&episteme->left_forkex->mutex) != 0)
-		return (1);
-	episteme->left_forkex->fork = UNUSED;
-	if (pthread_mutex_unlock(&episteme->left_forkex->mutex) != 0)
-		return (1);
-	*forks_held = 0;
-	return (0);
-}
-
 int	philo_eat(
 	t_thread_data *const episteme,
 	unsigned long *const last_eaten,
@@ -120,6 +101,12 @@ int	philo_eat(
 			return (1);
 		time_eaten = get_timestamp(start_stamp) - *last_eaten;
 	}
-	put_down_forks(episteme, forks_held);
+	pthread_mutex_lock(&episteme->right_forkex->mutex);
+	episteme->right_forkex->fork = UNUSED;
+	pthread_mutex_unlock(&episteme->right_forkex->mutex);
+	pthread_mutex_lock(&episteme->left_forkex->mutex);
+	episteme->left_forkex->fork = UNUSED;
+	pthread_mutex_unlock(&episteme->left_forkex->mutex);
+	*forks_held = 0;
 	return (0);
 }

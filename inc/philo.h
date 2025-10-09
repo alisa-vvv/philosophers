@@ -31,7 +31,6 @@ typedef	enum e_philo_errno // get rid of this
 	invalid_argument,
 	mutex_init_fail,
 	mutex_lock_fail,
-	mutex_unlock_fail,
 	thread_create_fail,
 	thread_join_fail,
 }	t_philo_errno;

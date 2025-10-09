@@ -36,7 +36,7 @@ void	log_action(
 		*episteme->log_index = 0;
 	else
 		*episteme->log_index = *episteme->log_index + 3;
-	assert(episteme->log_arr[msg_index] == 0); // REMOVE
+	//assert(episteme->log_arr[msg_index] == 0); // REMOVE
 	episteme->log_arr[msg_index] = msg_type;
 	episteme->log_arr[msg_index + 1] = timestamp;
 	episteme->log_arr[msg_index + 2] = philo_i;

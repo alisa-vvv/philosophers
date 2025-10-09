@@ -250,9 +250,9 @@ int		philo_atoi(
 /*	endof Utils			*/
 
 /*		Test Functions (COMMENT THEM OUT)			*/
-void			TEST_print_args(
-	t_philo_args *args
-);
+//void			TEST_print_args(
+//	t_philo_args *args
+//);
 /*		endof Test Functions						*/
 
 #endif

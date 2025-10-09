@@ -92,7 +92,7 @@ int	logger_loop(
 	goal = find_last_log(panopticon_data, &msg_info, i);
 	while (*i < goal)
 	{
-		assert(msg_buf->arr[msg_buf->i] == 0); // REMOVE
+		//assert(msg_buf->arr[msg_buf->i] == 0); // REMOVE
 		get_log_values(panopticon_data, &msg_info, *i);
 		if (log_to_str(panopticon_data, &msg_info, msg_buf) != 0)
 			return (1);

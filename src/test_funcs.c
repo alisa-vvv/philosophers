@@ -13,13 +13,13 @@
 #include "philo.h"
 #include <stdio.h>
 
-void	TEST_print_args(
-	t_philo_args *args
-)
-{
-	printf("philo count: %lu\n", args->philo_count);
-	printf("die time: %lu\n", args->time_to_die);
-	printf("eat time: %lu\n", args->time_to_eat);
-	printf("sleep time: %lu\n", args->time_to_sleep);
-	printf("meal count: %d\n", args->meal_count);
-}
+//void	TEST_print_args(
+//	t_philo_args *args
+//)
+//{
+//	printf("philo count: %lu\n", args->philo_count);
+//	printf("die time: %lu\n", args->time_to_die);
+//	printf("eat time: %lu\n", args->time_to_eat);
+//	printf("sleep time: %lu\n", args->time_to_sleep);
+//	printf("meal count: %d\n", args->meal_count);
+//}

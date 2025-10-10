@@ -129,6 +129,7 @@ typedef struct	s_thread_data
 	unsigned long	*log_index;
 	unsigned long	*log_arr;
 	pthread_mutex_t	*log_mutex;
+	pthread_t		*next_thread;
 
 }	t_thread_data;
 

@@ -94,6 +94,6 @@ val:
 	-s --leak-check=full --show-leak-kinds=all ./$(NAME) $(INPUT)
 hel:
 	$(MAKE) -s debug
-	valgrind --tool=helgrind ./$(NAME) $(INPUT)
+	valgrind --tool=helgrind --track-lockorders=yes ./$(NAME) $(INPUT)
 
 .PHONY:	clangd all clean fclean re test run leak debug gdb

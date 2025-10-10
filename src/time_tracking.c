@@ -21,7 +21,7 @@
 //TIMESTAMP += 1
 //PHILO += 2
 
-void	log_action(
+int	log_action(
 	t_thread_data *episteme,
 	int philo_i,
 	t_msg_type msg_type,
@@ -30,6 +30,8 @@ void	log_action(
 {
 	int	msg_index;
 
+//	if (check_simulation_end(episteme) == 0)
+//		return (1);
 	pthread_mutex_lock(episteme->log_mutex);
 	msg_index = *episteme->log_index;
 	if (*episteme->log_index == LOG_BUF_MAX - 3)
@@ -41,6 +43,7 @@ void	log_action(
 	episteme->log_arr[msg_index + 1] = timestamp;
 	episteme->log_arr[msg_index + 2] = philo_i;
 	pthread_mutex_unlock(episteme->log_mutex);
+	return (0);
 }
 
 unsigned long	get_timestamp_in_ms(
@@ -67,4 +70,3 @@ unsigned long	get_start_timestamp(
 	start_timestamp = timestamp.tv_sec * 1000 + timestamp.tv_usec / 1000;
 	return (start_timestamp);
 }
-

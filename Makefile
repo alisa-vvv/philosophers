@@ -1,6 +1,4 @@
-# **************************************************************************** #
-#                                                                              #
-#                                                        ::::::::              #
+# **************************************************************************** # # ::::::::              #
 #    Makefile                                          :+:    :+:              #
 #                                                     +:+                      #
 #    By: avaliull <avaliull@student.codam.nl>        +#+                       #
@@ -11,7 +9,6 @@
 # **************************************************************************** #
 
 .DEFAULT_GOAL := all
-
 NAME	=	philo
 CFILES	=	philo.c\
 			setup_variables.c\
@@ -37,8 +34,6 @@ SRCDIRS = $(SRCDIR)
 
 $(SRCDIR):
 	mkdir -p $@
-$(LIBDIR):
-	mkdir -p $@
 $(INCDIR):
 	mkdir -p $@
 $(BUILDDIR):
@@ -53,7 +48,7 @@ CPPFLAGS	= $(INCFLAGS) -MMD -MP
 
 INCFLAGS	= $(addprefix -I,$(INCLUDE))
 CFLAGS	= -Wall -Wextra -Werror -fsanitize=undefined
-INPUT	= 4 1000 50 50 4
+INPUT	= 3 400 100 100 3
 
 
 -include $(OFILES:.o=.d)
@@ -63,19 +58,14 @@ INPUT	= 4 1000 50 50 4
 $(BUILDDIR)%.o: %.c $(INCLUDE) | $(BUILDDIR)
 	$(CC) $(CPPFLAGS) -c $< -o $@
 
-$(LIBFT):
-	$(MAKE) all -C $(LIBFT_DIR)
-
-$(NAME): $(LIBFT) $(OFILES)
-	$(CC) $(CFLAGS) -o $@ $(OFILES) $(LIBFT) $(INCFLAGS)
+$(NAME): $(OFILES)
+	$(CC) $(CFLAGS) -o $@ $(OFILES) $(INCFLAGS)
 
 #Base/project requirements
 all: $(NAME)
-libs_clean:
-	$(MAKE) fclean -C $(LIBFT_DIR)
 clean:
 	$(RM) $(OFILES)
-fclean:	clean libs_clean
+fclean:	clean
 	$(RM) $(NAME) $(DEPFILES)
 re:	fclean all
 
@@ -106,4 +96,4 @@ hel:
 	$(MAKE) -s debug
 	valgrind --tool=helgrind ./$(NAME) $(INPUT)
 
-.PHONY:	clangd all clean fclean re libs_clean test run leak debug gdb
+.PHONY:	clangd all clean fclean re test run leak debug gdb

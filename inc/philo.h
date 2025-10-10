@@ -94,8 +94,8 @@ typedef struct	s_msg_buf
 
 typedef struct	s_panopticon_data
 {
-	unsigned long	*log_arr;
 	unsigned long	*log_index;
+	unsigned long	*log_arr;
 	pthread_mutex_t	*log_mutex;
 
 	int				meals_eaten[PHILO_BUF_MAX];
@@ -143,11 +143,14 @@ int	run_threads(
 /*	endof Philo threads	*/
 
 /*		States		*/
+int	check_simulation_end(
+	t_thread_data	*episteme
+);
 int	check_if_dead(
 	t_thread_data *episteme,
 	unsigned long *last_eaten
 );
-void	philo_think(
+int	philo_think(
 	t_thread_data *episteme
 );
 int	philo_sleep(
@@ -164,12 +167,12 @@ int	philo_eat(
 /*	endof States	*/
 
 /*		Fork management		*/
-void	take_a_fork(
+int	take_a_fork(
 	t_thread_data *episteme,
 	t_forkex *forkex,
 	int *forks_held
 );
-void	find_free_forks(
+int	find_free_forks(
 	t_thread_data *episteme,
 	int	*forks_held
 );
@@ -199,7 +202,7 @@ int	log_to_str(
 	t_msg_info *msg_info,
 	t_msg_buf *msg_buf
 );
-void	log_action(
+int	log_action(
 	t_thread_data *episteme,
 	int philo_i,
 	t_msg_type msg_type,

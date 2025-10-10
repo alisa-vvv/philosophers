@@ -22,6 +22,9 @@ int	check_if_dead(
 	unsigned long	timestamp;
 	bool			do_log;
 
+	//if (check_simulation_end(episteme) == 1)
+	//	return (1);
+	do_log = true;
 	timestamp = get_timestamp_in_ms(episteme->start_timestamp);
 	if (timestamp - *last_eaten > episteme->time_to_die)
 	{
@@ -39,18 +42,21 @@ int	check_if_dead(
 	return (0);
 }
 
-void	philo_think(
+int	philo_think(
 	t_thread_data *episteme
 )
 {
 	unsigned long	timestamp;
 
+	if (check_simulation_end(episteme) == 1)
+		return (1);
 	if (*episteme->philo != THINKING)	
 	{
 		*episteme->philo = THINKING;
 		timestamp = get_timestamp_in_ms(episteme->start_timestamp);
 		log_action(episteme, episteme->philo_i, MSG_THINK, timestamp);
 	}
+	return (0);
 }
 
 int	philo_sleep(
@@ -61,9 +67,11 @@ int	philo_sleep(
 {
 	const unsigned long	start_timestamp = episteme->start_timestamp;
 	const unsigned long	time_to_sleep_in_ms = episteme->time_to_sleep / 1000;
-	unsigned long	sleep_start;
-	unsigned long	time_slept;
+	unsigned long		sleep_start;
+	unsigned long		time_slept;
 
+	if (check_simulation_end(episteme) == 1)
+		return (1);
 	*episteme->philo = SLEEPING;
 	sleep_start = get_timestamp_in_ms(start_timestamp);
 	log_action(episteme, episteme->philo_i, MSG_SLEEP, sleep_start);
@@ -75,6 +83,23 @@ int	philo_sleep(
 			return (1);
 		time_slept = get_timestamp_in_ms(start_timestamp) - sleep_start;
 	}
+	return (0);
+}
+
+static int	put_down_forks(
+	t_thread_data *episteme,
+	int *forks_held
+)
+{
+	if (check_simulation_end(episteme) == 1)
+		return (1);
+	pthread_mutex_lock(&episteme->right_forkex->mutex);
+	episteme->right_forkex->fork = UNUSED;
+	pthread_mutex_unlock(&episteme->right_forkex->mutex);
+	pthread_mutex_lock(&episteme->left_forkex->mutex);
+	episteme->left_forkex->fork = UNUSED;
+	pthread_mutex_unlock(&episteme->left_forkex->mutex);
+	*forks_held = 0;
 	return (0);
 }
 
@@ -90,6 +115,8 @@ int	philo_eat(
 	unsigned long		new_timestamp;
 	unsigned long		time_eaten;
 
+	if (check_simulation_end(episteme) == 1)
+		return (1);
 	*last_eaten = get_timestamp_in_ms(episteme->start_timestamp);
 	log_action(episteme, episteme->philo_i, MSG_EAT, *last_eaten);
 	*episteme->philo = EATING;
@@ -101,12 +128,5 @@ int	philo_eat(
 			return (1);
 		time_eaten = get_timestamp_in_ms(start_timestamp) - *last_eaten;
 	}
-	pthread_mutex_lock(&episteme->right_forkex->mutex);
-	episteme->right_forkex->fork = UNUSED;
-	pthread_mutex_unlock(&episteme->right_forkex->mutex);
-	pthread_mutex_lock(&episteme->left_forkex->mutex);
-	episteme->left_forkex->fork = UNUSED;
-	pthread_mutex_unlock(&episteme->left_forkex->mutex);
-	*forks_held = 0;
-	return (0);
+	return (put_down_forks(episteme, forks_held));
 }

@@ -41,6 +41,8 @@ static int	log_setup_sim_run(
 		episteme[i].log_arr = log_arr;
 	}
 	run_threads(episteme, panopticon_data, philo_args, start);
+	pthread_mutex_destroy(start->mutex);
+	pthread_mutex_destroy(&log_mutex);
 	return (0);
 }
 
@@ -66,7 +68,7 @@ static void	construct_paradigm(
 		if (i != philo_args.philo_count - 1)
 			episteme[i].right_forkex = &forkexes[i + 1];
 		else
-			episteme[i].right_forkex = forkexes;
+			episteme[i].right_forkex = &forkexes[0];
 		episteme[i].philo_i = i;
 	}
 }
@@ -84,6 +86,7 @@ static int	prepare_and_run_simulation(
 	int					i;
 
 	pthread_mutex_init(&start_mutex, NULL);
+	start.timestamp = 0;
 	start.run_simulation = false;
 	start.timestamp = 0;
 	start.mutex = &start_mutex;
@@ -113,5 +116,10 @@ int	main(
 		return (philo_exit(err_check));
 	instantiate_subjects_and_objects(philo_args, philosophers, forkexes);
 	prepare_and_run_simulation(philo_args, philosophers, forkexes);
+
+	int	i;
+	i = -1;
+	while (++i < philo_args.philo_count)
+		pthread_mutex_destroy(&forkexes[i].mutex);
 	philo_exit(success);
 }

@@ -12,7 +12,7 @@
 
 #include "philo.h"
 
-void	take_a_fork(
+int	take_a_fork(
 	t_thread_data *episteme,
 	t_forkex *forkex,
 	int *forks_held
@@ -20,6 +20,8 @@ void	take_a_fork(
 {
 	unsigned long	timestamp;
 
+	if (check_simulation_end(episteme) == 1)
+		return (1);
 	if (forkex->fork == UNUSED
 			|| (forkex->fork == NEVER_USED && episteme->philo_i % 2 == 0))
 	{
@@ -31,15 +33,19 @@ void	take_a_fork(
 	}
 	else
 		pthread_mutex_unlock(&forkex->mutex);
+	return (0);
 }
 
-void	find_free_forks(
+int	find_free_forks(
 	t_thread_data *episteme,
 	int	*forks_held
 )
 {
+	if (check_simulation_end(episteme) == 1)
+		return (1);
 	pthread_mutex_lock(&episteme->left_forkex->mutex);
 	take_a_fork(episteme, episteme->left_forkex, forks_held);
 	pthread_mutex_lock(&episteme->right_forkex->mutex);
 	take_a_fork(episteme, episteme->right_forkex, forks_held);
+	return (0);
 }

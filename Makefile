@@ -32,7 +32,6 @@ DEPFILES	= $(addprefix $(BUILDDIR),$(CFILES:.c=.d))
 VPATH	= $(INCLUDE) $(SRCDIRS)
 BUILDDIR = build/
 SRCDIR = src/
-LIBDIR = lib/
 INCDIR = inc/
 SRCDIRS = $(SRCDIR)
 
@@ -45,9 +44,7 @@ $(INCDIR):
 $(BUILDDIR):
 	mkdir -p $@
 
-LIBFT_DIR = $(LIBDIR)libft/
-LIBFT	= $(LIBFT_DIR)libft.a
-INCLUDE = $(INCDIR) $(LIBFT_DIR)
+INCLUDE = $(INCDIR)
 
 RM	= rm -rf
 CC	= cc
@@ -56,7 +53,7 @@ CPPFLAGS	= $(INCFLAGS) -MMD -MP
 
 INCFLAGS	= $(addprefix -I,$(INCLUDE))
 CFLAGS	= -Wall -Wextra -Werror -fsanitize=undefined
-INPUT	= 12 410 200 200 10
+INPUT	= 4 1000 50 50 4
 
 
 -include $(OFILES:.o=.d)

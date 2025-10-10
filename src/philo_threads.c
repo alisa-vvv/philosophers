@@ -40,7 +40,11 @@ static int	routine(
 			return (1);
 	}	
 	if (check_if_dead(episteme, last_eaten) == 1)
+	{
+		#include <stdio.h>
+		printf("do we get here?\n");
 		return (1);
+	}
 	return (0);
 }
 
@@ -104,12 +108,12 @@ int	run_threads(
 	i = -1;
 	while (++i < philo_args.philo_count)
 		pthread_create(&philo_threads[i], NULL, praxis, &episteme[i]);
-	i = -1;
 	usleep(1000);
 	start->run_simulation = true;
 	start->timestamp = get_start_timestamp();
 	pthread_mutex_unlock(start->mutex);
 	pthread_join(panopticon_thread, NULL);
+	i = -1;
 	while (++i < philo_args.philo_count)
 		pthread_join(philo_threads[i], NULL);
 	return (0);

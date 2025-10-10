@@ -22,10 +22,10 @@ static int	log_setup_sim_run(
 	t_start *start
 )
 {
-	unsigned long		log_arr[LOG_BUF_MAX];
-	unsigned long		log_index;
-	pthread_mutex_t		log_mutex;
-	int	i;
+	unsigned long	log_arr[LOG_BUF_MAX];
+	unsigned long	log_index;
+	pthread_mutex_t	log_mutex;
+	int				i;
 
 	memset(log_arr, 0, LOG_BUF_MAX);
 	log_index = 0;

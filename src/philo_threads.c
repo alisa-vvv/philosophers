@@ -73,20 +73,9 @@ static void	*praxis(
 	last_eaten = 0;
 	times_eaten = 0;
 	forks_held = 0;
-	//const unsigned long	start_loop_stamp = get_start_timestamp();
-	while (1)
-	{
-		usleep(500);
-	
-	  pthread_mutex_lock(episteme->start->mutex);
-		if (episteme->start->run_simulation == true)
-		{
-	  		episteme->start_timestamp = episteme->start->timestamp;
-			pthread_mutex_unlock(episteme->start->mutex);
-			break ;
-		}
-	  pthread_mutex_unlock(episteme->start->mutex);
-	}
+	pthread_mutex_lock(episteme->start->mutex);
+	episteme->start_timestamp = episteme->start->timestamp;
+	pthread_mutex_unlock(episteme->start->mutex);
 	if (episteme->meal_count >= 0)
 		total_meals = episteme->meal_count;
 	else if (episteme->meal_count == NO_LIMIT)
@@ -98,8 +87,6 @@ static void	*praxis(
 		if (routine(episteme, &last_eaten, &times_eaten, &forks_held) == 1)
 			break ;
 	}
-//	if (episteme->next_thread != NULL)
-//		pthread_join(*episteme->next_thread, NULL);
 	return (NULL);
 }
 
@@ -110,25 +97,18 @@ int	run_threads(
 	t_start *start
 )
 {
-	//pthread_t	panopticon_thread;
 	pthread_t	philo_threads[PHILO_BUF_MAX];
 	int			i;
 
 	//pthread_create(&panopticon_thread, NULL, panopticon, panopticon_data);
+	pthread_mutex_lock(start->mutex);
 	start->run_simulation = true;
 	start->timestamp = get_start_timestamp();
 	panopticon_data->start_timestamp = start->timestamp;
 	i = -1;
-	//pthread_mutex_lock(start->mutex);
 	while (++i < philo_args.philo_count)
-	{
-	//	episteme[i].next_thread = NULL;
-	//	if (i != philo_args.philo_count - 1)
-	//		episteme[i].next_thread = &philo_threads[i + 1];
 		pthread_create(&philo_threads[i], NULL, praxis, &episteme[i]);
-	}
-	usleep(1000);
-	//pthread_mutex_unlock(start->mutex);
+	pthread_mutex_unlock(start->mutex);
 	panopticon(panopticon_data);
 	i = -1;
 	while (++i < philo_args.philo_count)

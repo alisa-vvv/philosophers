@@ -108,6 +108,7 @@ int	main(
 	t_philo_args	philo_args;
 	t_philo			philosophers[PHILO_BUF_MAX];
 	t_forkex		forkexes[PHILO_BUF_MAX];
+	int				i;
 
 	if (argc != 5 && argc != 6)
 		return (philo_exit(wrong_argc));
@@ -116,8 +117,6 @@ int	main(
 		return (philo_exit(err_check));
 	instantiate_subjects_and_objects(philo_args, philosophers, forkexes);
 	prepare_and_run_simulation(philo_args, philosophers, forkexes);
-
-	int	i;
 	i = -1;
 	while (++i < philo_args.philo_count)
 		pthread_mutex_destroy(&forkexes[i].mutex);

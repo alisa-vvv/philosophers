@@ -48,10 +48,6 @@ void	*panopticon(
 
 	memset(msg_buf.arr, 0, MSG_BUF_MAX);
 	msg_buf.i = 0;
-	//pthread_mutex_lock(panopticon_data->start->mutex);
-	//if (panopticon_data->start->run_simulation == true)
-	//	panopticon_data->start_timestamp = panopticon_data->start->timestamp;
-	//pthread_mutex_unlock(panopticon_data->start->mutex);
 	log_and_write(panopticon_data, &msg_buf);
 	return (NULL);
 }

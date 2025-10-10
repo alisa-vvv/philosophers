@@ -15,27 +15,6 @@
 
 #include "philo.h"
 
-//static void TEST_check_death_timing(
-//)
-//{
-//	unsigned long TEST_post_stamp = 0;
-//	unsigned long TEST_pre_stamp = 0;
-//	TEST_pre_stamp = get_timestamp_in_ms(panopticon_data->start_timestamp);
-//
-//	write(STDOUT_FILENO, msg_buf->arr, msg_buf->i + 7); // leave only this
-//
-//	TEST_post_stamp = get_timestamp_in_ms(panopticon_data->start_timestamp);
-//	write(STDOUT_FILENO, "\npost msg: ", 11);
-//	char	post_msg[24];
-//	memset(post_msg, 0, 24);
-//	philo_ultoa(TEST_pre_stamp, post_msg);
-//	write(STDOUT_FILENO, post_msg, 5);
-//	memset(post_msg, 0, 24);
-//	write(STDOUT_FILENO, "\npost msg: ", 11);
-//	philo_ultoa(TEST_post_stamp, post_msg);
-//	write(STDOUT_FILENO, post_msg, 5);
-//}
-
 static int	handle_death(
 	t_panopticon_data *const panopticon_data,
 	t_msg_buf *msg_buf

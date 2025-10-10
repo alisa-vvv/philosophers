@@ -100,7 +100,6 @@ int	run_threads(
 	pthread_t	philo_threads[PHILO_BUF_MAX];
 	int			i;
 
-	//pthread_create(&panopticon_thread, NULL, panopticon, panopticon_data);
 	pthread_mutex_lock(start->mutex);
 	start->run_simulation = true;
 	start->timestamp = get_start_timestamp();

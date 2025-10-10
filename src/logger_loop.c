@@ -39,8 +39,7 @@ static void	write_and_clear_msg_buf(
 {
 	if (msg_buf->arr[0] != '\0')
 	{
-		printf("%s", msg_buf->arr);
-		//write(STDOUT_FILENO, msg_buf->arr, msg_buf->i + 1);
+		write(STDOUT_FILENO, msg_buf->arr, msg_buf->i + 1);
 		memset(msg_buf->arr, 0, msg_buf->i + 1);
 		msg_buf->i = 0;
 	}

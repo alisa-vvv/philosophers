@@ -30,8 +30,6 @@ int	log_action(
 {
 	int	msg_index;
 
-//	if (check_simulation_end(episteme) == 0)
-//		return (1);
 	pthread_mutex_lock(episteme->log_mutex);
 	msg_index = *episteme->log_index;
 	if (*episteme->log_index == LOG_BUF_MAX - 3)

@@ -24,10 +24,17 @@
 # define MSG_BUF_MAX 16384
 # define LOG_BUF_MAX 16386
 
+typedef	enum e_philo_status // get rid of this ?
+{
+	alive,
+	dead,
+	sated,
+}	t_philo_status;
+
 typedef	enum e_philo_errno // get rid of this ?
 {
 	success,
-	death,
+	death, // remove?
 	buf_overflow,
 	wrong_argc,
 	invalid_argument,

@@ -26,13 +26,13 @@ void	log_and_write(
 
 	msg_buf->i = 0;
 	i = 0;
-	loop_stamp = get_timestamp_in_ms(panopticon_data->start_timestamp);
-	while (1)
+	loop_more = 0;
+	//loop_stamp = get_timestamp_in_ms(panopticon_data->start_timestamp);
+	while (loop_more == 0)
 	{
-		usleep(1000);
+		memset(msg_buf, 0, MSG_BUF_MAX);
+		usleep(500);
 		loop_more = logger_loop(panopticon_data, msg_buf, &i, &loop_stamp);
-		if (loop_more != 0)
-			break ;
 	}
 	return ;
 }

@@ -20,13 +20,13 @@ static int	handle_death(
 	t_msg_buf *msg_buf
 )
 {
-	printf("%s\n", msg_buf->arr);
 	philo_memcpy(" died\n", &msg_buf->arr[msg_buf->i], 6);
-	//write(STDOUT_FILENO, msg_buf->arr, msg_buf->i + 7);
-	pthread_mutex_lock(panopticon_data->start->mutex);
-	panopticon_data->start->run_simulation = false;
-	pthread_mutex_unlock(panopticon_data->start->mutex);
-	return (1);
+	//printf("%s\n", msg_buf->arr);
+	////write(STDOUT_FILENO, msg_buf->arr, msg_buf->i + 7);
+	//pthread_mutex_lock(panopticon_data->start->mutex);
+	//panopticon_data->start->run_simulation = false;
+	//pthread_mutex_unlock(panopticon_data->start->mutex);
+	return (dead);
 }
 
 static void	count_meals(
@@ -44,12 +44,12 @@ static void	count_meals(
 		panopticon_data->philos_sated++;
 //		printf("panopticon_data->philos_sated after: %d\n", panopticon_data->philos_sated);
 	}
-	if (panopticon_data->philos_sated == panopticon_data->philo_count)
-	{
-		pthread_mutex_lock(panopticon_data->start->mutex);
-		panopticon_data->start->run_simulation = false;
-		pthread_mutex_unlock(panopticon_data->start->mutex);
-	}
+//	if (panopticon_data->philos_sated == panopticon_data->philo_count)
+//	{
+//		pthread_mutex_lock(panopticon_data->start->mutex);
+//		panopticon_data->start->run_simulation = false;
+//		pthread_mutex_unlock(panopticon_data->start->mutex);
+//	}
 }
 
 int	log_to_str(

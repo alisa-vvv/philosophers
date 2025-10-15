@@ -13,6 +13,7 @@
 #include "philo.h"
 #include <string.h>
 #include <stdio.h>
+#include <assert.h>
 
 static void	get_log_values(
 	t_panopticon_data *const panopticon_data,
@@ -22,7 +23,7 @@ static void	get_log_values(
 {
 	pthread_mutex_lock(panopticon_data->log_mutex);
 	if (i > LOG_BUF_MAX - 3)
-		printf("what the fuck, i: %d\n", i);
+		printf("what the fuck, i: %d\n", i); // what
 	local_info->msg_type = panopticon_data->log_arr[i];
 	panopticon_data->log_arr[i] = 0;
 	local_info->timestamp = panopticon_data->log_arr[i + 1];
@@ -32,7 +33,7 @@ static void	get_log_values(
 	pthread_mutex_unlock(panopticon_data->log_mutex);
 }
 
-static void	write_and_clear_msg_buf(
+static void	print_and_clear_msg_buf(
 	t_panopticon_data *const panopticon_data,
 	t_msg_buf *msg_buf,
 	unsigned long *loop_stamp
@@ -40,12 +41,10 @@ static void	write_and_clear_msg_buf(
 {
 	if (msg_buf->arr[0] != '\0')
 	{
-		write(STDOUT_FILENO, msg_buf->arr, msg_buf->i + 1);
 		printf("%s", msg_buf->arr);
 		memset(msg_buf->arr, 0, msg_buf->i + 1);
 		msg_buf->i = 0;
 	}
-	*loop_stamp = get_timestamp_in_ms(panopticon_data->start_timestamp);
 }
 
 static int	find_last_log(
@@ -58,6 +57,7 @@ static int	find_last_log(
 
 	pthread_mutex_lock(panopticon_data->log_mutex);
 	msg_info->log_index = *panopticon_data->log_index;
+	assert(panopticon_data->log_arr[msg_info->log_index] == 0);
 	pthread_mutex_unlock(panopticon_data->log_mutex);
 	if (msg_info->log_index < *i)
 		goal = LOG_BUF_MAX;
@@ -66,7 +66,6 @@ static int	find_last_log(
 	return (goal);
 }
 
-#include <stdio.h>
 static void	adjust_index(
 	int log_index,
 	int *goal,
@@ -83,6 +82,58 @@ static void	adjust_index(
 		*i = *i + 3;
 }
 
+//static int	count_meals(
+//	t_panopticon_data *const panopticon_data,
+//	const int philo_i
+//)
+//{
+//	panopticon_data->meals_eaten[philo_i]++;
+//	//printf("meals eaten after: %d\n", panopticon_data->meals_eaten[philo_i]);
+//	if (panopticon_data->meals_eaten[philo_i] == panopticon_data->meal_count)
+//	{
+//		//printf("panopticon_data->philos_sated before: %d\n", panopticon_data->philos_sated);
+//		panopticon_data->philos_sated++;
+//		//printf("panopticon_data->philos_sated after: %d\n", panopticon_data->philos_sated);
+//	}
+//	if (panopticon_data->philos_sated == panopticon_data->philo_count)
+//	{
+//		pthread_mutex_lock(panopticon_data->start->mutex);
+//		panopticon_data->start->run_simulation = false;
+//		pthread_mutex_unlock(panopticon_data->start->mutex);
+//		return (1);
+//	}
+//	return (0);
+//}
+//
+//int	print_msg(
+//	t_panopticon_data *panopticon_data,
+//	t_msg_info msg_info
+//)
+//{
+//	if (msg_info.msg_type == MSG_THINK)
+//		printf("%lu philosopher %d is thinking\n",
+//			msg_info.timestamp, msg_info.philo_i + 1);
+//	else if (msg_info.msg_type == MSG_FORK)
+//		printf("%lu philosopher %d took a fork\n",
+//			msg_info.timestamp, msg_info.philo_i + 1);
+//	else if (msg_info.msg_type == MSG_EAT)
+//	{
+//		printf("%lu philosopher %d is eating\n",
+//			msg_info.timestamp, msg_info.philo_i + 1);
+//		return (count_meals(panopticon_data, msg_info.philo_i));
+//	}
+//	else if (msg_info.msg_type == MSG_SLEEP)
+//		printf("%lu philosopher %d is sleeping\n",
+//			msg_info.timestamp, msg_info.philo_i + 1);
+//	else if (msg_info.msg_type == MSG_DEAD)
+//	{
+//		printf("%lu philosopher %d died\n",
+//			msg_info.timestamp, msg_info.philo_i + 1);
+//		return (1);
+//	}
+//	return (0);
+//}
+//
 int	logger_loop(
 	t_panopticon_data *const panopticon_data,
 	t_msg_buf *msg_buf,
@@ -96,19 +147,20 @@ int	logger_loop(
 	goal = find_last_log(panopticon_data, &msg_info, i);
 	while (*i != goal)
 	{
+		if (msg_buf->i > (MSG_BUF_MAX / 4) * 3)
+			print_and_clear_msg_buf(panopticon_data, msg_buf, loop_stamp);
 		get_log_values(panopticon_data, &msg_info, *i);
-		if (log_to_str(panopticon_data, &msg_info, msg_buf) != 0)
-			return (1);
-		else if (get_timestamp_in_ms(panopticon_data->start_timestamp) - *loop_stamp > 25
-				|| msg_buf->i > (MSG_BUF_MAX / 4) * 3)
-			write_and_clear_msg_buf(panopticon_data, msg_buf, loop_stamp);
-		else if (panopticon_data->philos_sated == panopticon_data->philo_count)
+		adjust_index(msg_info.log_index, &goal, i);
+		if (log_to_str(panopticon_data, &msg_info, msg_buf) == dead
+			|| panopticon_data->philos_sated == panopticon_data->philo_count)
 		{
-			write_and_clear_msg_buf(panopticon_data, msg_buf, loop_stamp);
+			printf("%s", msg_buf->arr);
+			pthread_mutex_lock(panopticon_data->start->mutex);
+			panopticon_data->start->run_simulation = false;
+			pthread_mutex_unlock(panopticon_data->start->mutex);
 			return (1);
 		}
-		adjust_index(msg_info.log_index, &goal, i);
 	}
-	write_and_clear_msg_buf(panopticon_data, msg_buf, loop_stamp);
+	print_and_clear_msg_buf(panopticon_data, msg_buf, loop_stamp);
 	return (0);
 }

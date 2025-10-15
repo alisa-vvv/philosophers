@@ -20,22 +20,36 @@ static int	handle_death(
 	t_msg_buf *msg_buf
 )
 {
+	printf("%s\n", msg_buf->arr);
+	philo_memcpy(" died\n", &msg_buf->arr[msg_buf->i], 6);
+	//write(STDOUT_FILENO, msg_buf->arr, msg_buf->i + 7);
 	pthread_mutex_lock(panopticon_data->start->mutex);
 	panopticon_data->start->run_simulation = false;
 	pthread_mutex_unlock(panopticon_data->start->mutex);
-	philo_memcpy(" died\n", &msg_buf->arr[msg_buf->i], 6);
-	write(STDOUT_FILENO, msg_buf->arr, msg_buf->i + 7);
 	return (1);
 }
 
 static void	count_meals(
 	t_panopticon_data *const panopticon_data,
-	int	philo_i
+	const int	philo_i
 )
 {
+//	printf("philo: %d\n", philo_i);
+//	printf("meals eaten before: %d\n", panopticon_data->meals_eaten[philo_i]);
 	panopticon_data->meals_eaten[philo_i]++;
+//	printf("meals eaten after: %d\n", panopticon_data->meals_eaten[philo_i]);
 	if (panopticon_data->meals_eaten[philo_i] == panopticon_data->meal_count)
-		panopticon_data->philos_sated += 1;
+	{
+//		printf("panopticon_data->philos_sated before: %d\n", panopticon_data->philos_sated);
+		panopticon_data->philos_sated++;
+//		printf("panopticon_data->philos_sated after: %d\n", panopticon_data->philos_sated);
+	}
+	if (panopticon_data->philos_sated == panopticon_data->philo_count)
+	{
+		pthread_mutex_lock(panopticon_data->start->mutex);
+		panopticon_data->start->run_simulation = false;
+		pthread_mutex_unlock(panopticon_data->start->mutex);
+	}
 }
 
 int	log_to_str(

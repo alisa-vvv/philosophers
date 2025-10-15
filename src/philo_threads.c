@@ -18,7 +18,6 @@
 static int	routine(
 	t_thread_data *episteme,
 	unsigned long *last_eaten,
-	int *times_eaten,
 	int *forks_held
 )
 {
@@ -36,8 +35,6 @@ static int	routine(
 		*episteme->philo = EATING;
 		if (philo_eat(episteme, last_eaten, episteme->philo_i, forks_held) == 1)
 			return (1);
-		if (episteme->meal_count != NO_LIMIT)
-			(*times_eaten)++;
 		if (philo_sleep(episteme, last_eaten, episteme->philo_i) == 1)
 			return (1);
 	}	
@@ -66,25 +63,18 @@ static void	*praxis(
 {
 	t_thread_data	*episteme = (t_thread_data *) data;
 	unsigned long	last_eaten;
-	int				times_eaten;
-	int				total_meals;
 	int				forks_held;
 
 	last_eaten = 0;
-	times_eaten = 0;
 	forks_held = 0;
 	pthread_mutex_lock(episteme->start->mutex);
 	episteme->start_timestamp = episteme->start->timestamp;
 	pthread_mutex_unlock(episteme->start->mutex);
-	if (episteme->meal_count >= 0)
-		total_meals = episteme->meal_count;
-	else if (episteme->meal_count == NO_LIMIT)
-		total_meals = 1;
-	while (times_eaten < total_meals)
+	while (1)
 	{
 		if (check_simulation_end(episteme) == 1)
 			break ;
-		if (routine(episteme, &last_eaten, &times_eaten, &forks_held) == 1)
+		if (routine(episteme, &last_eaten, &forks_held) == 1)
 			break ;
 	}
 	return (NULL);

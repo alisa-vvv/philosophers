@@ -12,6 +12,7 @@
 
 #include "philo.h"
 #include <string.h>
+#include <stdio.h>
 
 static void	get_log_values(
 	t_panopticon_data *const panopticon_data,
@@ -20,6 +21,8 @@ static void	get_log_values(
 )
 {
 	pthread_mutex_lock(panopticon_data->log_mutex);
+	if (i > LOG_BUF_MAX - 3)
+		printf("what the fuck, i: %d\n", i);
 	local_info->msg_type = panopticon_data->log_arr[i];
 	panopticon_data->log_arr[i] = 0;
 	local_info->timestamp = panopticon_data->log_arr[i + 1];
@@ -38,6 +41,7 @@ static void	write_and_clear_msg_buf(
 	if (msg_buf->arr[0] != '\0')
 	{
 		write(STDOUT_FILENO, msg_buf->arr, msg_buf->i + 1);
+		printf("%s", msg_buf->arr);
 		memset(msg_buf->arr, 0, msg_buf->i + 1);
 		msg_buf->i = 0;
 	}
@@ -90,10 +94,8 @@ int	logger_loop(
 	t_msg_info	msg_info;
 
 	goal = find_last_log(panopticon_data, &msg_info, i);
-	while (*i < goal)
+	while (*i != goal)
 	{
-		// here should be boundary check
-		// if not empty?
 		get_log_values(panopticon_data, &msg_info, *i);
 		if (log_to_str(panopticon_data, &msg_info, msg_buf) != 0)
 			return (1);
@@ -107,5 +109,6 @@ int	logger_loop(
 		}
 		adjust_index(msg_info.log_index, &goal, i);
 	}
+	write_and_clear_msg_buf(panopticon_data, msg_buf, loop_stamp);
 	return (0);
 }

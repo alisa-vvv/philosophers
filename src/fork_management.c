@@ -20,8 +20,6 @@ int	take_a_fork(
 {
 	unsigned long	timestamp;
 
-	if (check_simulation_end(episteme) == 1)
-		return (1);
 	if (forkex->fork == UNUSED
 			|| (forkex->fork == NEVER_USED && episteme->philo_i % 2 == 0))
 	{

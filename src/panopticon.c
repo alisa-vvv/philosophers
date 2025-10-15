@@ -32,8 +32,9 @@ void	log_and_write(
 		usleep(1000);
 		loop_more = logger_loop(panopticon_data, msg_buf, &i, &loop_stamp);
 		if (loop_more != 0)
-			return ;
+			break ;
 	}
+	return ;
 }
 
 void	*panopticon(

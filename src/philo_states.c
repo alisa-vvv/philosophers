@@ -76,6 +76,8 @@ int	philo_sleep(
 	time_slept = get_timestamp_in_ms(start_timestamp) - sleep_start;
 	while (time_slept < time_to_sleep_in_ms)
 	{
+		if (check_simulation_end(episteme) == 1)
+			return (1);
 		usleep(5000);
 		if (check_if_dead(episteme, last_eaten) == 1)
 			return (1);
@@ -121,6 +123,8 @@ int	philo_eat(
 	time_eaten = 0;
 	while (time_eaten < time_to_eat_in_ms)
 	{
+		if (check_simulation_end(episteme) == 1)
+			return (1);
 		usleep(5000);
 		if (time_eaten > episteme->time_to_die)
 			return (1);

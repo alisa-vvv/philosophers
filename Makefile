@@ -48,7 +48,7 @@ CPPFLAGS	= $(INCFLAGS) -MMD -MP
 
 INCFLAGS	= $(addprefix -I,$(INCLUDE))
 CFLAGS	= -Wall -Wextra -Werror -fsanitize=undefined
-INPUT	= 256 400 100 100 10
+INPUT	= 200 100000 50 50 10
 
 
 -include $(OFILES:.o=.d)

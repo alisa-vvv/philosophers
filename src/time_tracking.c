@@ -31,14 +31,15 @@ int	log_action(
 
 	pthread_mutex_lock(episteme->log_mutex);
 	msg_index = *episteme->log_index;
+	//printf("current index: %d\n", msg_index);
 	if (*episteme->log_index == LOG_BUF_MAX - 3)
 		*episteme->log_index = 0;
 	else
 		*episteme->log_index = *episteme->log_index + 3;
 	if (episteme->log_arr[msg_index] != 0)
 	{
-		printf("here? %d\n", msg_index);
 		pthread_mutex_unlock(episteme->log_mutex);
+		//printf("PLACEHOLDER, BUFFER OVERFLOW\n");
 		return (1);
 	}
 	episteme->log_arr[msg_index] = msg_type;

@@ -22,13 +22,16 @@
 # define NO_LIMIT -1
 # define PHILO_BUF_MAX 256
 # define MSG_BUF_MAX 8192
-# define LOG_BUF_MAX 12288
+# define LOG_BUF_MAX 16386
 
-typedef	enum e_philo_errno // get rid of this
+typedef	enum e_philo_errno // get rid of this ?
 {
 	success,
+	death,
+	buf_overflow,
 	wrong_argc,
-	invalid_argument
+	invalid_argument,
+	too_many_philos,
 }	t_philo_errno;
 
 typedef struct s_philo_args

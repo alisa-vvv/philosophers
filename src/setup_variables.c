@@ -37,6 +37,8 @@ t_philo_errno	set_philo_args(
 )
 {
 	args->philo_count = philo_atoi((unsigned char *) argv[1]);
+	if (args->philo_count > 256)
+		return (too_many_philos);
 	args->time_to_die = philo_atoi((unsigned char *) argv[2]);
 	args->time_to_eat = philo_atoi((unsigned char *) argv[3]);
 	args->time_to_sleep = philo_atoi((unsigned char *) argv[4]);

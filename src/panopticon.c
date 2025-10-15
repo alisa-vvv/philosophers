@@ -10,8 +10,6 @@
 //                                                                            //
 // ************************************************************************** //
 
-#include <assert.h>
-
 #include "philo.h"
 #include <stdio.h>
 #include <unistd.h>

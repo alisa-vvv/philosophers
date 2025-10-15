@@ -12,8 +12,6 @@
 
 #include "philo.h"
 #include <string.h>
-#include <assert.h>
-#include <stdio.h>
 
 static void	get_log_values(
 	t_panopticon_data *const panopticon_data,
@@ -64,6 +62,7 @@ static int	find_last_log(
 	return (goal);
 }
 
+#include <stdio.h>
 static void	adjust_index(
 	int log_index,
 	int *goal,
@@ -93,6 +92,8 @@ int	logger_loop(
 	goal = find_last_log(panopticon_data, &msg_info, i);
 	while (*i < goal)
 	{
+		// here should be boundary check
+		// if not empty?
 		get_log_values(panopticon_data, &msg_info, *i);
 		if (log_to_str(panopticon_data, &msg_info, msg_buf) != 0)
 			return (1);

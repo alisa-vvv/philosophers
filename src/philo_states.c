@@ -22,8 +22,6 @@ int	check_if_dead(
 	unsigned long	timestamp;
 	bool			do_log;
 
-	//if (check_simulation_end(episteme) == 1)
-	//	return (1);
 	do_log = true;
 	timestamp = get_timestamp_in_ms(episteme->start_timestamp);
 	if (timestamp - *last_eaten > episteme->time_to_die)
@@ -36,7 +34,7 @@ int	check_if_dead(
 		episteme->start->run_simulation = false;
 		pthread_mutex_unlock(episteme->start->mutex);
 		if (do_log == true)
-			log_action(episteme, episteme->philo_i, MSG_DEAD, timestamp);
+			log_action(episteme, episteme->philo_i, MSG_DEAD, timestamp); // check here for error as well
 		return (1);
 	}
 	return (0);

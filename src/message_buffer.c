@@ -10,46 +10,16 @@
 //                                                                            //
 // ************************************************************************** //
 
-#include <stdio.h>
-#include <string.h>
-
 #include "philo.h"
-
-static int	handle_death(
-	t_panopticon_data *const panopticon_data,
-	t_msg_buf *msg_buf
-)
-{
-	philo_memcpy(" died\n", &msg_buf->arr[msg_buf->i], 6);
-	//printf("%s\n", msg_buf->arr);
-	////write(STDOUT_FILENO, msg_buf->arr, msg_buf->i + 7);
-	//pthread_mutex_lock(panopticon_data->start->mutex);
-	//panopticon_data->start->run_simulation = false;
-	//pthread_mutex_unlock(panopticon_data->start->mutex);
-	return (dead);
-}
 
 static void	count_meals(
 	t_panopticon_data *const panopticon_data,
-	const int	philo_i
+	const int philo_i
 )
 {
-//	printf("philo: %d\n", philo_i);
-//	printf("meals eaten before: %d\n", panopticon_data->meals_eaten[philo_i]);
 	panopticon_data->meals_eaten[philo_i]++;
-//	printf("meals eaten after: %d\n", panopticon_data->meals_eaten[philo_i]);
 	if (panopticon_data->meals_eaten[philo_i] == panopticon_data->meal_count)
-	{
-//		printf("panopticon_data->philos_sated before: %d\n", panopticon_data->philos_sated);
 		panopticon_data->philos_sated++;
-//		printf("panopticon_data->philos_sated after: %d\n", panopticon_data->philos_sated);
-	}
-//	if (panopticon_data->philos_sated == panopticon_data->philo_count)
-//	{
-//		pthread_mutex_lock(panopticon_data->start->mutex);
-//		panopticon_data->start->run_simulation = false;
-//		pthread_mutex_unlock(panopticon_data->start->mutex);
-//	}
 }
 
 int	log_to_str(
@@ -63,7 +33,10 @@ int	log_to_str(
 	msg_buf->i += 13;
 	msg_buf->i += philo_ultoa(msg_info->philo_i + 1, &msg_buf->arr[msg_buf->i]);
 	if (msg_info->msg_type == MSG_DEAD)
-		return (handle_death(panopticon_data, msg_buf));
+	{
+		philo_memcpy(" died\n", &msg_buf->arr[msg_buf->i], 6);
+		return (dead);
+	}
 	else if (msg_info->msg_type == MSG_THINK)
 		philo_memcpy(" is thinking\n", &msg_buf->arr[msg_buf->i], 13);
 	else if (msg_info->msg_type == MSG_FORK)

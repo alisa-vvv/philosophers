@@ -10,17 +10,11 @@
 //                                                                            //
 // ************************************************************************** //
 
-#include <stdio.h>
-
 #include <sys/time.h>
 #include <stddef.h>
 #include "philo.h"
 
-//MSG_TYPE += 0
-//TIMESTAMP += 1
-//PHILO += 2
-
-int	log_action(
+void	log_action(
 	t_thread_data *episteme,
 	int philo_i,
 	t_msg_type msg_type,
@@ -31,22 +25,26 @@ int	log_action(
 
 	pthread_mutex_lock(episteme->log_mutex);
 	msg_index = *episteme->log_index;
-	//printf("current index: %d\n", msg_index);
-	if (*episteme->log_index == LOG_BUF_MAX - 3)
-		*episteme->log_index = 0;
-	else
-		*episteme->log_index = *episteme->log_index + 3;
-	if (episteme->log_arr[msg_index] != 0)
+	if (msg_index < 0)
 	{
 		pthread_mutex_unlock(episteme->log_mutex);
-		//printf("PLACEHOLDER, BUFFER OVERFLOW\n");
-		return (1);
+		return ;
 	}
-	episteme->log_arr[msg_index] = msg_type;
-	episteme->log_arr[msg_index + 1] = timestamp;
-	episteme->log_arr[msg_index + 2] = philo_i;
+	if (*episteme->log_index == LOG_BUF_MAX - 1)
+		*episteme->log_index = 0;
+	else
+		(*episteme->log_index)++;
+	if (episteme->log[msg_index].msg_type != 0
+		|| episteme->log[msg_index].timestamp != 0
+		|| episteme->log[msg_index].philo_i != 0)
+		*episteme->log_index = -1;
+	else
+	{
+		episteme->log[msg_index].msg_type = msg_type;
+		episteme->log[msg_index].timestamp = timestamp;
+		episteme->log[msg_index].philo_i = philo_i;
+	}
 	pthread_mutex_unlock(episteme->log_mutex);
-	return (0); // where return?
 }
 
 unsigned long	get_timestamp_in_ms(
@@ -62,9 +60,7 @@ unsigned long	get_timestamp_in_ms(
 	return (new_timestamp);
 }
 
-unsigned long	get_start_timestamp(
-	void
-)
+unsigned long	get_start_timestamp(void)
 {
 	struct timeval	timestamp;
 	unsigned long	start_timestamp;

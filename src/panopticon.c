@@ -16,23 +16,34 @@
 #include <string.h>
 
 void	log_and_write(
-	t_panopticon_data	*const panopticon_data,
+	t_panopticon_data *const panopticon_data,
 	t_msg_buf *msg_buf
 )
 {
 	int				i;
-	unsigned long	loop_stamp;
 	int				loop_more;
 
 	msg_buf->i = 0;
 	i = 0;
 	loop_more = 0;
-	//loop_stamp = get_timestamp_in_ms(panopticon_data->start_timestamp);
 	while (loop_more == 0)
 	{
 		memset(msg_buf, 0, MSG_BUF_MAX);
-		usleep(500);
-		loop_more = logger_loop(panopticon_data, msg_buf, &i, &loop_stamp);
+		usleep(MILLISECOND);
+		loop_more = logger_loop(panopticon_data, msg_buf, &i);
+		if (loop_more != 0)
+		{
+			//
+			unsigned long stamp_pre = get_timestamp_in_ms(panopticon_data->start_timestamp);
+			if (msg_buf->arr[0] != '\0')
+				printf("%s", msg_buf->arr);
+			unsigned long stamp_post = get_timestamp_in_ms(panopticon_data->start_timestamp);
+			printf("death timing pre print: %lu, post print: %lu\n", stamp_pre, stamp_post);
+			//
+			pthread_mutex_lock(panopticon_data->start->mutex);
+			panopticon_data->start->run_simulation = false;
+			pthread_mutex_unlock(panopticon_data->start->mutex);
+		}
 	}
 	return ;
 }

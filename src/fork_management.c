@@ -5,8 +5,8 @@
 //                                                    +:+                     //
 //   By: avaliull <avaliull@student.codam.nl>        +#+                      //
 //                                                  +#+                       //
-//   Created: 2025/09/15 19:46:02 by avaliull     #+#    #+#                  //
-//   Updated: 2025/10/07 16:24:02 by avaliull     ########   odam.nl          //
+//   Created: 2025/10/16 20:18:16 by avaliull     #+#    #+#                  //
+//   Updated: 2025/10/16 20:18:37 by avaliull     ########   odam.nl          //
 //                                                                            //
 // ************************************************************************** //
 
@@ -27,8 +27,6 @@ int	take_a_fork(
 		(*forks_held)++;
 		pthread_mutex_unlock(&forkex->mutex);
 		timestamp = get_timestamp_in_ms(episteme->start_timestamp);
-		if (check_simulation_end(episteme) == 1)
-			return (1);
 		log_action(episteme, episteme->philo_i, MSG_FORK, timestamp);
 	}
 	else
@@ -41,8 +39,6 @@ int	find_free_forks(
 	int	*forks_held
 )
 {
-	if (check_simulation_end(episteme) == 1)
-		return (1);
 	pthread_mutex_lock(&episteme->left_forkex->mutex);
 	take_a_fork(episteme, episteme->left_forkex, forks_held);
 	pthread_mutex_lock(&episteme->right_forkex->mutex);

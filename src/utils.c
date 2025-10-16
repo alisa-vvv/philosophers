@@ -12,18 +12,16 @@
 
 #include <philo.h>
 #include <unistd.h>
-#include <stdlib.h>
-#include <string.h>
 
 int	philo_putstr_fd(
-	int		fd,
-	char	*str
+	int fd,
+	char *str
 )
 {
 	int	len;
 
 	len = 0;
-	while(str[len])
+	while (str[len])
 		len++;
 	return (write(fd, str, len));
 }
@@ -68,29 +66,8 @@ void	philo_memcpy(
 		dest[count] = src[count];
 }
 
-//void	*philo_calloc(
-//	size_t nmemb,
-//	size_t size
-//)
-//{
-//	unsigned char	*memory;
-//	int				i;
-//
-//	if (size == 0)
-//		return (malloc(0));
-//	if (nmemb > (size_t) - 1 / size)
-//		return (NULL);
-//	memory = malloc(nmemb * size);
-//	if (memory == NULL)
-//		return (NULL);
-//	i = -1;
-//	while (++i < nmemb)
-//		memory[i] = 0;
-//	return (memory);
-//}
-//
-int		philo_atoi(
-	unsigned char	*str
+int	philo_atoi(
+	unsigned char *str
 )
 {
 	int	i;
@@ -108,7 +85,6 @@ int		philo_atoi(
 		i++;
 	}
 	if (str[i] && (str[i] < '0' || str[i] > '9'))
-		return (-1);
+		return (0);
 	return (n);
 }
-

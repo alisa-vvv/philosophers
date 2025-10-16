@@ -20,9 +20,14 @@
 # define SECOND 1000000
 # define MILLISECOND 1000
 # define NO_LIMIT -1
-# define PHILO_BUF_MAX 256
+# define MAX_MSG_LEN 40 /*
+	this value is 39 because the largest possible message is:
+	4294967295 philosopher 200 is thinking\n
+	which is 39 characters. the value is bigger cause it's realted to an index.
+*/
+# define PHILO_BUF_MAX 200
 # define MSG_BUF_MAX 16384
-# define LOG_BUF_MAX 16386
+# define LOG_BUF_MAX 8192
 
 typedef	enum e_philo_status // get rid of this ?
 {
@@ -33,12 +38,12 @@ typedef	enum e_philo_status // get rid of this ?
 
 typedef	enum e_philo_errno // get rid of this ?
 {
-	success,
-	death, // remove?
-	buf_overflow,
-	wrong_argc,
-	invalid_argument,
-	too_many_philos,
+	success = 0,
+	death = 1, // remove?
+	buf_overflow = -1,
+	wrong_argc = 2,
+	invalid_argument = 3,
+	too_many_philos = 4,
 }	t_philo_errno;
 
 typedef struct s_philo_args
@@ -89,6 +94,12 @@ typedef struct	s_msg_info
 	int				philo_i;
 	int				log_index;
 }	t_msg_info;
+typedef struct	s_msg_log
+{
+	t_msg_type		msg_type;
+	unsigned long	timestamp;
+	int				philo_i;
+}	t_msg_log;
 typedef struct	s_start
 {
 	unsigned long	timestamp;
@@ -105,7 +116,7 @@ typedef struct	s_msg_buf
 typedef struct	s_panopticon_data
 {
 	unsigned long	*log_index;
-	unsigned long	*log_arr;
+	t_msg_log		*log;
 	pthread_mutex_t	*log_mutex;
 
 	int				meals_eaten[PHILO_BUF_MAX];
@@ -137,7 +148,7 @@ typedef struct	s_thread_data
 	t_forkex		*right_forkex;
 
 	unsigned long	*log_index;
-	unsigned long	*log_arr;
+	t_msg_log		*log;
 	pthread_mutex_t	*log_mutex;
 	pthread_t		*next_thread;
 
@@ -196,8 +207,7 @@ void	*panopticon(
 int	logger_loop(
 	t_panopticon_data *const panopticon_data,
 	t_msg_buf *msg_buf,
-	int	*i,
-	unsigned long *loop_stamp
+	int	*i
 );
 /*	endof Panopticon	*/
 
@@ -213,7 +223,7 @@ int	log_to_str(
 	t_msg_info *msg_info,
 	t_msg_buf *msg_buf
 );
-int	log_action(
+void	log_action(
 	t_thread_data *episteme,
 	int philo_i,
 	t_msg_type msg_type,
@@ -264,7 +274,7 @@ int		philo_atoi(
 /*	endof Utils			*/
 
 /*		Test Functions (COMMENT THEM OUT)			*/
-//void			TEST_print_args(
+//void			TEST_p25rint_args(
 //	t_philo_args *args
 //);
 /*		endof Test Functions						*/

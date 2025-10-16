@@ -57,6 +57,7 @@ int	check_simulation_end(
 	return (0);
 }
 
+#include <stdio.h>
 static void	*praxis(
 	void *data
 )
@@ -65,8 +66,8 @@ static void	*praxis(
 	unsigned long	last_eaten;
 	int				forks_held;
 
-	last_eaten = 0;
 	forks_held = 0;
+	last_eaten = 0;
 	pthread_mutex_lock(episteme->start->mutex);
 	episteme->start_timestamp = episteme->start->timestamp;
 	pthread_mutex_unlock(episteme->start->mutex);

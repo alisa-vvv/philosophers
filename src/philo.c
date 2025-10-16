@@ -1,18 +1,32 @@
+// ************************************************************************** //
+//                                                                            //
+//                                                       ::::::::             //
+//   philo.c                                           :+:    :+:             //
+//                                                    +:+                     //
+//   By: avaliull <avaliull@student.codam.nl>        +#+                      //
+//                                                  +#+                       //
+//   Created: 2025/10/16 20:16:14 by avaliull     #+#    #+#                  //
+//   Updated: 2025/10/16 20:19:12 by avaliull     ########   odam.nl          //
+//                                                                            //
+// ************************************************************************** //
+
 #include "philo.h"
 #include <string.h>
 #include <pthread.h> 
 
-static void	prepare_surveillance_data(
-	t_panopticon_data *panopticon_data,
-	t_philo_args philo_args,
-	t_start *start
+static void	msg_log_init(
+	t_msg_log *msg_log
 )
 {
-	memset(panopticon_data->meals_eaten, 0, PHILO_BUF_MAX);
-	panopticon_data->philo_count = philo_args.philo_count;
-	panopticon_data->meal_count = philo_args.meal_count;
-	panopticon_data->philos_sated = 0;
-	panopticon_data->start = start;
+	int	i;
+
+	i = -1;
+	while (++i < LOG_BUF_MAX)
+	{
+		msg_log[i].msg_type = 0;
+		msg_log[i].timestamp = 0;
+		msg_log[i].philo_i = 0;
+	}
 }
 
 static int	log_setup_sim_run(
@@ -22,23 +36,23 @@ static int	log_setup_sim_run(
 	t_start *start
 )
 {
-	unsigned long	log_arr[LOG_BUF_MAX];
+	t_msg_log		msg_log[LOG_BUF_MAX];
 	unsigned long	log_index;
 	pthread_mutex_t	log_mutex;
 	int				i;
 
-	memset(log_arr, 0, LOG_BUF_MAX);
+	msg_log_init(msg_log);
 	log_index = 0;
 	pthread_mutex_init(&log_mutex, NULL);
 	panopticon_data->log_index = &log_index;
 	panopticon_data->log_mutex = &log_mutex;
-	panopticon_data->log_arr = log_arr;
+	panopticon_data->log = msg_log;
 	i = -1;
 	while (++i < philo_args.philo_count)
 	{
 		episteme[i].log_index = &log_index;
 		episteme[i].log_mutex = &log_mutex;
-		episteme[i].log_arr = log_arr;
+		episteme[i].log = msg_log;
 	}
 	run_threads(episteme, panopticon_data, philo_args, start);
 	pthread_mutex_destroy(start->mutex);
@@ -94,7 +108,11 @@ static int	prepare_and_run_simulation(
 	i = -1;
 	while (++i < philo_args.philo_count)
 		episteme[i].start = &start;
-	prepare_surveillance_data(&panopticon_data, philo_args, &start);
+	memset(panopticon_data.meals_eaten, 0, PHILO_BUF_MAX);
+	panopticon_data.philo_count = philo_args.philo_count;
+	panopticon_data.meal_count = philo_args.meal_count;
+	panopticon_data.philos_sated = 0;
+	panopticon_data.start = &start;
 	construct_paradigm(episteme, philo_args, philosophers, forkexes);
 	return (log_setup_sim_run(&panopticon_data, episteme, philo_args, &start));
 }
@@ -112,7 +130,7 @@ int	main(
 
 	if (argc != 5 && argc != 6)
 		return (philo_exit(wrong_argc));
-	err_check = set_philo_args(&philo_args,	argv);
+	err_check = set_philo_args(&philo_args, argv);
 	if (err_check != success)
 		return (philo_exit(err_check));
 	instantiate_subjects_and_objects(philo_args, philosophers, forkexes);

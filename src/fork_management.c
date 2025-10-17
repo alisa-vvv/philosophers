@@ -12,12 +12,15 @@
 
 #include "philo.h"
 
+// add a "first take function?
+//
 int	take_a_fork(
 	t_thread_data *episteme,
 	t_forkex *forkex,
 	int *forks_held
 )
 {
+	// removed unused markers?
 	unsigned long	timestamp;
 
 	if (forkex->fork == UNUSED
@@ -36,12 +39,19 @@ int	take_a_fork(
 
 int	find_free_forks(
 	t_thread_data *episteme,
-	int	*forks_held
+	int	*forks_held,
+	unsigned long *last_eaten
 )
 {
-	pthread_mutex_lock(&episteme->left_forkex->mutex);
-	take_a_fork(episteme, episteme->left_forkex, forks_held);
-	pthread_mutex_lock(&episteme->right_forkex->mutex);
-	take_a_fork(episteme, episteme->right_forkex, forks_held);
+	while (*forks_held != 2)
+	{
+		usleep(1000);
+		if (check_if_dead(episteme, last_eaten) == 1)
+			return (1);
+		pthread_mutex_lock(&episteme->left_forkex->mutex);
+		take_a_fork(episteme, episteme->left_forkex, forks_held);
+		pthread_mutex_lock(&episteme->right_forkex->mutex);
+		take_a_fork(episteme, episteme->right_forkex, forks_held);
+	}
 	return (0);
 }

@@ -24,7 +24,7 @@ static int	routine(
 
 	if (philo_think(episteme) == 1)
 		return (1);
-	if (find_free_forks(episteme, forks_held) == 1)
+	if (find_free_forks(episteme, forks_held, last_eaten) == 1)
 		return (1);
 	if (check_if_dead(episteme, last_eaten) == 1)
 		return (1);

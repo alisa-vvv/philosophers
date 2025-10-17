@@ -1,14 +1,14 @@
-// ************************************************************************** //
-//                                                                            //
-//                                                       ::::::::             //
-//   logger_loop.c                                     :+:    :+:             //
-//                                                    +:+                     //
-//   By: avaliull <avaliull@student.codam.nl>        +#+                      //
-//                                                  +#+                       //
-//   Created: 2025/10/16 20:14:23 by avaliull     #+#    #+#                  //
-//   Updated: 2025/10/16 20:14:24 by avaliull     ########   odam.nl          //
-//                                                                            //
-// ************************************************************************** //
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                            ::::::::        */
+/*   logger_loop.c                                           :+:    :+:       */
+/*                                                          +:+               */
+/*   By: avaliull <avaliull@student.codam.nl>              +#+                */
+/*                                                        +#+                 */
+/*   Created: 2025/10/17 13:24:47 by avaliull            #+#    #+#           */
+/*   Updated: 2025/10/17 13:31:03 by avaliull            ########   odam.nl   */
+/*                                                                            */
+/* ************************************************************************** */
 
 #include "philo.h"
 #include <string.h>
@@ -104,7 +104,7 @@ int	logger_loop(
 			print_and_clear_msg_buf(panopticon_data, msg_buf);
 		get_log_values(panopticon_data, &msg_info, *i);
 		adjust_index(msg_info.log_index, &goal, i);
-		if (log_to_str(panopticon_data, &msg_info, msg_buf) == dead
+		if (log_to_str(panopticon_data, &msg_info, msg_buf) == death
 			|| panopticon_data->philos_sated == panopticon_data->philo_count)
 			return (1);
 	}

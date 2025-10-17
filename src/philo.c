@@ -1,14 +1,14 @@
-// ************************************************************************** //
-//                                                                            //
-//                                                       ::::::::             //
-//   philo.c                                           :+:    :+:             //
-//                                                    +:+                     //
-//   By: avaliull <avaliull@student.codam.nl>        +#+                      //
-//                                                  +#+                       //
-//   Created: 2025/10/16 20:16:14 by avaliull     #+#    #+#                  //
-//   Updated: 2025/10/16 20:19:12 by avaliull     ########   odam.nl          //
-//                                                                            //
-// ************************************************************************** //
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                            ::::::::        */
+/*   philo.c                                                 :+:    :+:       */
+/*                                                          +:+               */
+/*   By: avaliull <avaliull@student.codam.nl>              +#+                */
+/*                                                        +#+                 */
+/*   Created: 2025/10/17 13:25:19 by avaliull            #+#    #+#           */
+/*   Updated: 2025/10/17 13:49:24 by avaliull            ########   odam.nl   */
+/*                                                                            */
+/* ************************************************************************** */
 
 #include "philo.h"
 #include <string.h>
@@ -60,6 +60,16 @@ static int	log_setup_sim_run(
 	return (0);
 }
 
+/*	In science and philosophy, a paradigm is a distinct set of concepts or
+ *	thought patterns, including theories, research methods, postulates, and
+ *	standards for what constitute legitimate contributions to a field.
+ *
+ *	The philosophers are only able to work within what they know.
+ *	Their paradigm consists entirely of forks, spaghetti, and the horrible
+ *	knlowdge of what happens if they don't eat in time_to_die MS.
+ *	This function constructs their paradigm for them. The philosophers will not
+ *	live long enough to see it shift.
+*/
 static void	construct_paradigm(
 	t_thread_data *episteme,
 	t_philo_args philo_args,

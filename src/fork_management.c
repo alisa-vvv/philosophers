@@ -1,14 +1,14 @@
-// ************************************************************************** //
-//                                                                            //
-//                                                       ::::::::             //
-//   fork_management.c                                 :+:    :+:             //
-//                                                    +:+                     //
-//   By: avaliull <avaliull@student.codam.nl>        +#+                      //
-//                                                  +#+                       //
-//   Created: 2025/10/16 20:18:16 by avaliull     #+#    #+#                  //
-//   Updated: 2025/10/16 20:18:37 by avaliull     ########   odam.nl          //
-//                                                                            //
-// ************************************************************************** //
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                            ::::::::        */
+/*   fork_management.c                                       :+:    :+:       */
+/*                                                          +:+               */
+/*   By: avaliull <avaliull@student.codam.nl>              +#+                */
+/*                                                        +#+                 */
+/*   Created: 2025/10/17 13:24:22 by avaliull            #+#    #+#           */
+/*   Updated: 2025/10/17 13:28:19 by avaliull            ########   odam.nl   */
+/*                                                                            */
+/* ************************************************************************** */
 
 #include "philo.h"
 
@@ -21,7 +21,7 @@ int	take_a_fork(
 	unsigned long	timestamp;
 
 	if (forkex->fork == UNUSED
-			|| (forkex->fork == NEVER_USED && episteme->philo_i % 2 == 0))
+		|| (forkex->fork == NEVER_USED && episteme->philo_i % 2 == 0))
 	{
 		forkex->fork = USED;
 		(*forks_held)++;

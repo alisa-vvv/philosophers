@@ -1,14 +1,14 @@
-// ************************************************************************** //
-//                                                                            //
-//                                                       ::::::::             //
-//   setup_variables.c                                 :+:    :+:             //
-//                                                    +:+                     //
-//   By: avaliull <avaliull@student.codam.nl>        +#+                      //
-//                                                  +#+                       //
-//   Created: 2025/09/15 19:50:28 by avaliull     #+#    #+#                  //
-//   Updated: 2025/10/07 17:34:41 by avaliull     ########   odam.nl          //
-//                                                                            //
-// ************************************************************************** //
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                            ::::::::        */
+/*   setup_variables.c                                       :+:    :+:       */
+/*                                                          +:+               */
+/*   By: avaliull <avaliull@student.codam.nl>              +#+                */
+/*                                                        +#+                 */
+/*   Created: 2025/10/17 13:28:26 by avaliull            #+#    #+#           */
+/*   Updated: 2025/10/17 13:42:53 by avaliull            ########   odam.nl   */
+/*                                                                            */
+/* ************************************************************************** */
 
 #include "philo.h"
 #include <stdio.h>
@@ -44,14 +44,14 @@ t_philo_errno	set_philo_args(
 	args->time_to_sleep = philo_atoi((unsigned char *) argv[4]);
 	if (args->time_to_die <= 0 || args->time_to_eat <= 0
 		|| args->time_to_sleep <= 0 || args->philo_count <= 0)
-	 	return (invalid_argument);
+		return (invalid_argument);
 	args->time_to_eat *= 1000;
 	args->time_to_sleep *= 1000;
 	if (argv[5])
 	{
 		args->meal_count = philo_atoi((unsigned char *) argv[5]);
 		if (args->meal_count <= 0)
-	 		return (invalid_argument);
+			return (invalid_argument);
 	}
 	else
 		args->meal_count = NO_LIMIT;

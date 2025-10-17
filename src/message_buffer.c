@@ -1,14 +1,14 @@
-// ************************************************************************** //
-//                                                                            //
-//                                                       ::::::::             //
-//   message_buffer.c                                  :+:    :+:             //
-//                                                    +:+                     //
-//   By: avaliull <avaliull@student.codam.nl>        +#+                      //
-//                                                  +#+                       //
-//   Created: 2025/10/01 14:55:03 by avaliull     #+#    #+#                  //
-//   Updated: 2025/10/07 16:09:30 by avaliull     ########   odam.nl          //
-//                                                                            //
-// ************************************************************************** //
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                            ::::::::        */
+/*   message_buffer.c                                        :+:    :+:       */
+/*                                                          +:+               */
+/*   By: avaliull <avaliull@student.codam.nl>              +#+                */
+/*                                                        +#+                 */
+/*   Created: 2025/10/17 13:25:01 by avaliull            #+#    #+#           */
+/*   Updated: 2025/10/17 13:31:17 by avaliull            ########   odam.nl   */
+/*                                                                            */
+/* ************************************************************************** */
 
 #include "philo.h"
 
@@ -35,7 +35,7 @@ int	log_to_str(
 	if (msg_info->msg_type == MSG_DEAD)
 	{
 		philo_memcpy(" died\n", &msg_buf->arr[msg_buf->i], 6);
-		return (dead);
+		return (death);
 	}
 	else if (msg_info->msg_type == MSG_THINK)
 		philo_memcpy(" is thinking\n", &msg_buf->arr[msg_buf->i], 13);

@@ -1,16 +1,14 @@
-// ************************************************************************** //
-//                                                                            //
-//                                                       ::::::::             //
-//   philo_threads.c                                   :+:    :+:             //
-//                                                    +:+                     //
-//   By: avaliull <avaliull@student.codam.nl>        +#+                      //
-//                                                  +#+                       //
-//   Created: 2025/10/07 16:15:37 by avaliull     #+#    #+#                  //
-//   Updated: 2025/10/07 16:22:07 by avaliull     ########   odam.nl          //
-//                                                                            //
-// ************************************************************************** //
-
-#include <stdio.h>
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                            ::::::::        */
+/*   philo_threads.c                                         :+:    :+:       */
+/*                                                          +:+               */
+/*   By: avaliull <avaliull@student.codam.nl>              +#+                */
+/*                                                        +#+                 */
+/*   Created: 2025/10/17 13:26:52 by avaliull            #+#    #+#           */
+/*   Updated: 2025/10/17 13:44:27 by avaliull            ########   odam.nl   */
+/*                                                                            */
+/* ************************************************************************** */
 
 #include "philo.h"
 #include <pthread.h>
@@ -37,7 +35,7 @@ static int	routine(
 			return (1);
 		if (philo_sleep(episteme, last_eaten, episteme->philo_i) == 1)
 			return (1);
-	}	
+	}
 	if (check_if_dead(episteme, last_eaten) == 1)
 		return (1);
 	return (0);
@@ -57,14 +55,19 @@ int	check_simulation_end(
 	return (0);
 }
 
-#include <stdio.h>
+/* Praxis is the process by which a theory, lesson, or skill is enacted,
+ * embodied, realized, applied, or put into practice. "Praxis" may also refer to
+ * the act of engaging, applying, exercising, realizing, or practising ideas.
+ *
+ * Thinking, sleeping and eating spaghetti is praxis.
+*/
 static void	*praxis(
 	void *data
 )
 {
-	t_thread_data	*episteme = (t_thread_data *) data;
-	unsigned long	last_eaten;
-	int				forks_held;
+	t_thread_data *const	episteme = (t_thread_data *) data;
+	unsigned long			last_eaten;
+	int						forks_held;
 
 	forks_held = 0;
 	last_eaten = 0;

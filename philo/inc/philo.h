@@ -19,7 +19,7 @@
 
 # define NO_LIMIT -1
 # define MAX_MSG_LEN 40 /*
-	this value is 39 because the largest possible message is:
+	this value is 40 because the largest possible message is:
 	4294967295 philosopher 200 is thinking\n
 	which is 39 characters. the value is bigger cause it's realted to an index.
 */

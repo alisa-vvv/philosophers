@@ -42,12 +42,12 @@ int	log_to_str(
 	else if (msg_info->msg_type == MSG_FORK)
 		philo_memcpy(" took a fork\n", &msg_buf->arr[msg_buf->i], 13);
 	else if (msg_info->msg_type == MSG_EAT)
-	{
 		philo_memcpy(" is eating\n", &msg_buf->arr[msg_buf->i], 11);
+	else if (msg_info->msg_type == MSG_SLEEP)
+	{
+		philo_memcpy(" is sleeping\n", &msg_buf->arr[msg_buf->i], 13);
 		count_meals(panopticon_data, msg_info->philo_i);
 	}
-	else if (msg_info->msg_type == MSG_SLEEP)
-		philo_memcpy(" is sleeping\n", &msg_buf->arr[msg_buf->i], 13);
 	if (msg_info->msg_type == MSG_EAT)
 		msg_buf->i += 11;
 	else

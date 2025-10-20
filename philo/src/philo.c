@@ -127,6 +127,9 @@ static int	prepare_and_run_simulation(
 	return (log_setup_sim_run(&panopticon_data, episteme, philo_args, &start));
 }
 
+#include <stdio.h>
+int TEST_noforks_counter = 0;
+
 int	main(
 	int argc,
 	char **argv
@@ -148,5 +151,6 @@ int	main(
 	i = -1;
 	while (++i < philo_args.philo_count)
 		pthread_mutex_destroy(&forkexes[i].mutex);
+	printf("situations when left fork not taken: %d\n", TEST_noforks_counter);
 	philo_exit(success);
 }

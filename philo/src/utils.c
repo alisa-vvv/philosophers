@@ -77,8 +77,11 @@ int	philo_atoi(
 	n = 0;
 	while (str[i] >= '0' && str[i] <= '9')
 	{
-		if (i > 10)
+		if (i > 9)
+		{
+			printf("proc\n"); // remove
 			return (-1);
+		}
 		if (n < 0)
 			return (-1);
 		n = n * 10 + str[i] - '0';

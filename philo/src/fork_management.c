@@ -12,15 +12,12 @@
 
 #include "philo.h"
 
-// add a "first take function?
-//
 int	take_a_fork(
 	t_thread_data *episteme,
 	t_forkex *forkex,
 	int *forks_held
 )
 {
-	// removed unused markers?
 	unsigned long	timestamp;
 
 	if (forkex->fork == UNUSED

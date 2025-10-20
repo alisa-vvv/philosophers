@@ -186,10 +186,10 @@ int
 		);
 int			
 	find_free_forks(
-	t_thread_data *episteme,
-	int	*forks_held,
-	unsigned long *last_eaten
-);
+		t_thread_data *episteme,
+		int	*forks_held,
+		unsigned long *last_eaten
+		);
 /*	endof Fork management	*/
 
 /*		Panopticon		*/

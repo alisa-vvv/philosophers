@@ -35,6 +35,7 @@ typedef enum e_philo_errno
 	wrong_argc = 2,
 	invalid_argument = 3,
 	too_many_philos = 4,
+	mutex_init_fail = 5,
 }	t_philo_errno;
 
 typedef struct s_philo_args
@@ -226,7 +227,7 @@ void
 
 /*		Variable setup		*/
 int			
-	instantiate_subjects_and_objects(
+	init_mutexes_philos(
 		t_philo_args philo_args,
 		t_philo *philosophers,
 		t_forkex *forkexes

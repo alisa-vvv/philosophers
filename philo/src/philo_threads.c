@@ -97,11 +97,11 @@ int	run_threads(
 	panopticon_data->start_timestamp = start->timestamp;
 	i = -1;
 	while (++i < philo_args.philo_count)
-		pthread_create(&philo_threads[i], NULL, praxis, &episteme[i]);
+		pthread_create(&philo_threads[i], NULL, praxis, &episteme[i]); // add error case
 	pthread_mutex_unlock(start->mutex);
 	panopticon(panopticon_data);
 	i = -1;
 	while (++i < philo_args.philo_count)
-		pthread_join(philo_threads[i], NULL);
+		pthread_join(philo_threads[i], NULL); // add error case
 	return (0);
 }

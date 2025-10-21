@@ -22,5 +22,7 @@ t_philo_errno	philo_exit(
 		philo_putstr_fd(STDERR_FILENO, "Error! Invalid argument(s)\n");
 	if (error_code == too_many_philos)
 		philo_putstr_fd(STDERR_FILENO, "Error! Maximum 200 philosphers\n");
+	if (error_code == mutex_init_fail)
+		philo_putstr_fd(STDERR_FILENO, "Error! Mutex init failed\n");
 	return (error_code);
 }

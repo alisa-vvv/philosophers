@@ -13,7 +13,7 @@
 #include "philo.h"
 #include <stdio.h>
 
-int	instantiate_subjects_and_objects(
+int	init_mutexes_philos(
 	t_philo_args philo_args,
 	t_philo *philosophers,
 	t_forkex *forkexes
@@ -25,7 +25,12 @@ int	instantiate_subjects_and_objects(
 	while (++i < philo_args.philo_count)
 	{
 		forkexes[i].fork = -1;
-		pthread_mutex_init(&forkexes[i].mutex, NULL);
+		if (pthread_mutex_init(&forkexes[i].mutex, NULL) != 0)
+		{
+			while (--i >= 0)
+				pthread_mutex_destroy(&forkexes[i].mutex);
+			return (mutex_init_fail);
+		}
 		philosophers[i] = -1;
 	}
 	return (0);

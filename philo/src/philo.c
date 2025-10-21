@@ -43,7 +43,7 @@ static int	log_setup_sim_run(
 
 	msg_log_init(msg_log);
 	log_index = 0;
-	pthread_mutex_init(&log_mutex, NULL);
+	pthread_mutex_init(&log_mutex, NULL); // add error
 	panopticon_data->log_index = &log_index;
 	panopticon_data->log_mutex = &log_mutex;
 	panopticon_data->log = msg_log;
@@ -109,7 +109,8 @@ static int	prepare_and_run_simulation(
 	t_panopticon_data	panopticon_data;
 	int					i;
 
-	pthread_mutex_init(&start_mutex, NULL);
+	if (pthread_mutex_init(&start_mutex, NULL) != 0)
+		return (mutex_init_fail);
 	start.timestamp = 0;
 	start.run_simulation = false;
 	start.timestamp = 0;
@@ -143,8 +144,12 @@ int	main(
 	err_check = set_philo_args(&philo_args, argv);
 	if (err_check != success)
 		return (philo_exit(err_check));
-	instantiate_subjects_and_objects(philo_args, philosophers, forkexes);
-	prepare_and_run_simulation(philo_args, philosophers, forkexes);
+	err_check = init_mutexes_philos(philo_args, philosophers, forkexes);
+	if (err_check != 0)
+		philo_exit(err_check);
+	err_check = prepare_and_run_simulation(philo_args, philosophers, forkexes);
+	if (err_check != 0)
+		philo_exit(err_check);
 	i = -1;
 	while (++i < philo_args.philo_count)
 		pthread_mutex_destroy(&forkexes[i].mutex);

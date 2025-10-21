@@ -31,7 +31,6 @@ static void	get_log_values(
 }
 
 static void	print_and_clear_msg_buf(
-	t_panopticon_data *const panopticon_data,
 	t_msg_buf *msg_buf
 )
 {
@@ -101,13 +100,13 @@ int	logger_loop(
 	while (*i != goal)
 	{
 		if (msg_buf->i > (MSG_BUF_MAX / 4) * 3)
-			print_and_clear_msg_buf(panopticon_data, msg_buf);
+			print_and_clear_msg_buf(msg_buf);
 		get_log_values(panopticon_data, &msg_info, *i);
 		adjust_index(msg_info.log_index, &goal, i);
 		if (log_to_str(panopticon_data, &msg_info, msg_buf) == death
 			|| panopticon_data->philos_sated == panopticon_data->philo_count)
 			return (1);
 	}
-	print_and_clear_msg_buf(panopticon_data, msg_buf);
+	print_and_clear_msg_buf(msg_buf);
 	return (0);
 }

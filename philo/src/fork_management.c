@@ -24,8 +24,8 @@ int	take_a_fork(
 		|| (forkex->fork == NEVER_USED && episteme->philo_i % 2 == 0))
 	{
 		forkex->fork = USED;
-		(*forks_held)++;
 		pthread_mutex_unlock(&forkex->mutex);
+		(*forks_held)++;
 		timestamp = get_timestamp_in_ms(episteme->start_timestamp);
 		log_action(episteme, episteme->philo_i, MSG_FORK, timestamp);
 	}
@@ -40,9 +40,6 @@ int	find_free_forks(
 	unsigned long *last_eaten
 )
 {
-	extern int TEST_noforks_counter;
-	int			TEST_took_left = true;
-
 	while (*forks_held != 2)
 	{
 		usleep(1000);
@@ -50,12 +47,8 @@ int	find_free_forks(
 			return (1);
 		pthread_mutex_lock(&episteme->left_forkex->mutex);
 		take_a_fork(episteme, episteme->left_forkex, forks_held);
-		if (*forks_held == 0)
-			TEST_took_left = false;
 		pthread_mutex_lock(&episteme->right_forkex->mutex);
 		take_a_fork(episteme, episteme->right_forkex, forks_held);
-		if (TEST_took_left == false && *forks_held == 1)
-			TEST_noforks_counter++;
 	}
 	return (0);
 }

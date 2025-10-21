@@ -45,17 +45,17 @@ RM	= rm -rf
 CC	= cc
 
 CPPFLAGS	= $(INCFLAGS) -MMD -MP
-
 INCFLAGS	= $(addprefix -I,$(INCLUDE))
-CFLAGS	= -Wall -Wextra -Werror -fsanitize=undefined
-INPUT	=  130 42949672950 60 60 100
+#CFLAGS	= -Wall -Wextra -Werror -fsanitize=undefined
+CFLAGS	= -Wall -Wextra -Werror
+INPUT	=  200 130 60 60 10
 
 -include $(OFILES:.o=.d)
 
 # builds .d files, then builds .o files based on .d.
 # skips files that weren't changed (see CPPFLAGS)
 $(BUILDDIR)%.o: %.c $(INCLUDE) | $(BUILDDIR)
-	$(CC) $(CPPFLAGS) -c $< -o $@
+	$(CC) $(CPPFLAGS) $(CFLAGS) -c $< -o $@
 
 $(NAME): $(OFILES)
 	$(CC) $(CFLAGS) -o $@ $(OFILES) $(INCFLAGS)

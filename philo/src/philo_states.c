@@ -56,8 +56,7 @@ int	philo_think(
 
 int	philo_sleep(
 	t_thread_data *episteme,
-	unsigned long *last_eaten,
-	int philo_i
+	unsigned long *last_eaten
 )
 {
 	const unsigned long	start_timestamp = episteme->start_timestamp;
@@ -97,13 +96,11 @@ static int	put_down_forks(
 int	philo_eat(
 	t_thread_data *episteme,
 	unsigned long *last_eaten,
-	int philo_i,
 	int *forks_held
 )
 {
 	const unsigned long	start_timestamp = episteme->start_timestamp;
 	const unsigned long	time_to_eat_in_ms = episteme->time_to_eat / 1000;
-	unsigned long		new_timestamp;
 	unsigned long		time_eaten;
 
 	*last_eaten = get_timestamp_in_ms(episteme->start_timestamp);

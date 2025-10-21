@@ -42,12 +42,9 @@ t_philo_errno	set_philo_args(
 	args->time_to_die = philo_atoi((unsigned char *) argv[2]);
 	args->time_to_eat = philo_atoi((unsigned char *) argv[3]);
 	args->time_to_sleep = philo_atoi((unsigned char *) argv[4]);
-	printf("what is time to die: %lu\n", args->time_to_die);
 	if (args->time_to_die <= 0 || args->time_to_eat <= 0
 		|| args->time_to_sleep <= 0 || args->philo_count <= 0)
-	{
 		return (invalid_argument);
-	}
 	args->time_to_eat *= 1000;
 	args->time_to_sleep *= 1000;
 	if (argv[5])

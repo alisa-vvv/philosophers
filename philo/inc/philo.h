@@ -39,7 +39,7 @@ typedef enum e_philo_errno
 
 typedef struct s_philo_args
 {
-	unsigned long	philo_count;
+	int				philo_count;
 	unsigned long	time_to_die;
 	unsigned long	time_to_eat;
 	unsigned long	time_to_sleep;
@@ -165,14 +165,12 @@ int
 int			
 	philo_sleep(
 		t_thread_data *episteme,
-		unsigned long *last_eaten,
-		int philo_i
+		unsigned long *last_eaten
 		);
 int			
 	philo_eat(
 		t_thread_data *episteme,
 		unsigned long *last_eaten,
-		int philo_i,
 		int *forks_held
 		);
 /*	endof States	*/

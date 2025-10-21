@@ -28,7 +28,6 @@ void	panopticon(
 )
 {
 	t_msg_buf		msg_buf;
-	int				loop_check;
 	int				i;
 	int				loop_more;
 

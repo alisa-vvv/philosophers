@@ -21,6 +21,6 @@ t_philo_errno	philo_exit(
 	else if (error_code == invalid_argument)
 		philo_putstr_fd(STDERR_FILENO, "Error! Invalid argument(s)\n");
 	if (error_code == too_many_philos)
-		philo_putstr_fd(STDERR_FILENO, "Error! Maximum 256 philosphers\n");
+		philo_putstr_fd(STDERR_FILENO, "Error! Maximum 200 philosphers\n");
 	return (error_code);
 }

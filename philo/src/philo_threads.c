@@ -19,9 +19,6 @@ static int	routine(
 	int *forks_held
 )
 {
-	int				stop;
-	unsigned long	timestamp;
-
 	if (philo_think(episteme) == 1)
 		return (1);
 	if (find_free_forks(episteme, forks_held, last_eaten) == 1)
@@ -31,9 +28,9 @@ static int	routine(
 	if (*forks_held == 2)
 	{
 		*episteme->philo = EATING;
-		if (philo_eat(episteme, last_eaten, episteme->philo_i, forks_held) == 1)
+		if (philo_eat(episteme, last_eaten, forks_held) == 1)
 			return (1);
-		if (philo_sleep(episteme, last_eaten, episteme->philo_i) == 1)
+		if (philo_sleep(episteme, last_eaten) == 1)
 			return (1);
 	}
 	if (check_if_dead(episteme, last_eaten) == 1)

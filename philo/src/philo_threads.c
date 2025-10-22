@@ -42,7 +42,10 @@ int	check_simulation_end(
 	t_thread_data	*episteme
 )
 {
+	int	status_check;
+
 	pthread_mutex_lock(episteme->start->mutex);
+	status_check = episteme->start->run_simulation;
 	if (episteme->start->run_simulation == false)
 	{
 		pthread_mutex_unlock(episteme->start->mutex);
@@ -97,11 +100,20 @@ int	run_threads(
 	panopticon_data->start_timestamp = start->timestamp;
 	i = -1;
 	while (++i < philo_args.philo_count)
-		pthread_create(&philo_threads[i], NULL, praxis, &episteme[i]); // add error case
+	{
+		if (pthread_create(&philo_threads[i], NULL, praxis, &episteme[i]) != 0)
+		{
+			start->run_simulation = false;
+			pthread_mutex_unlock(start->mutex);
+			while (--i >= 0)
+				pthread_join(philo_threads[i], NULL);
+			return (thread_create_fail);
+		}
+	}
 	pthread_mutex_unlock(start->mutex);
 	panopticon(panopticon_data);
 	i = -1;
 	while (++i < philo_args.philo_count)
-		pthread_join(philo_threads[i], NULL); // add error case
+		pthread_join(philo_threads[i], NULL);
 	return (0);
 }

@@ -25,8 +25,8 @@ int	take_a_fork(
 	{
 		forkex->fork = USED;
 		pthread_mutex_unlock(&forkex->mutex);
-		(*forks_held)++;
 		timestamp = get_timestamp_in_ms(episteme->start_timestamp);
+		(*forks_held)++;
 		log_action(episteme, episteme->philo_i, MSG_FORK, timestamp);
 	}
 	else

@@ -34,7 +34,7 @@ int	log_to_str(
 	msg_buf->i += philo_ultoa(msg_info->philo_i + 1, &msg_buf->arr[msg_buf->i]);
 	if (msg_info->msg_type == MSG_DEAD)
 	{
-		philo_memcpy(" died\n", &msg_buf->arr[msg_buf->i], 6);
+		philo_memcpy(" died\0", &msg_buf->arr[msg_buf->i], 6);
 		return (death);
 	}
 	else if (msg_info->msg_type == MSG_THINK)

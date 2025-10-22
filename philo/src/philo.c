@@ -43,7 +43,8 @@ static int	log_setup_sim_run(
 
 	msg_log_init(msg_log);
 	log_index = 0;
-	pthread_mutex_init(&log_mutex, NULL); // add error
+	if (pthread_mutex_init(&log_mutex, NULL) != 0)
+		return (pthread_mutex_destroy(start->mutex), mutex_init_fail);
 	panopticon_data->log_index = &log_index;
 	panopticon_data->log_mutex = &log_mutex;
 	panopticon_data->log = msg_log;

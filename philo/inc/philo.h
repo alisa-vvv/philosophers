@@ -36,6 +36,7 @@ typedef enum e_philo_errno
 	invalid_argument = 3,
 	too_many_philos = 4,
 	mutex_init_fail = 5,
+	thread_create_fail = 6,
 }	t_philo_errno;
 
 typedef struct s_philo_args

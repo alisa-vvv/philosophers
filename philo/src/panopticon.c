@@ -34,14 +34,15 @@ void	panopticon(
 	msg_buf.i = 0;
 	i = 0;
 	loop_more = 0;
+	memset(msg_buf.arr, 0, MSG_BUF_MAX);
 	while (loop_more == 0)
 	{
-		memset(msg_buf.arr, 0, MSG_BUF_MAX);
+		usleep(1000);
 		loop_more = logger_loop(panopticon_data, &msg_buf, &i);
 		if (loop_more != 0)
 		{
 			if (msg_buf.arr[0] != '\0')
-				printf("%s", msg_buf.arr);
+				printf("%s\n", msg_buf.arr);
 			pthread_mutex_lock(panopticon_data->start->mutex);
 			panopticon_data->start->run_simulation = false;
 			pthread_mutex_unlock(panopticon_data->start->mutex);

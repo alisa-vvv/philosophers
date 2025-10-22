@@ -26,10 +26,7 @@ int	check_if_dead(
 	if (timestamp - *last_eaten > episteme->time_to_die)
 	{
 		pthread_mutex_lock(episteme->start->mutex);
-		if (episteme->start->run_simulation == false)
-			do_log = false;
-		else
-			do_log = true;
+		do_log = episteme->start->run_simulation;
 		episteme->start->run_simulation = false;
 		pthread_mutex_unlock(episteme->start->mutex);
 		if (do_log == true)

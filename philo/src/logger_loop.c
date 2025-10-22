@@ -11,7 +11,6 @@
 /* ************************************************************************** */
 
 #include "philo.h"
-#include <string.h>
 #include <stdio.h>
 
 static void	get_log_values(
@@ -36,9 +35,10 @@ static void	print_and_clear_msg_buf(
 {
 	if (msg_buf->arr[0] != '\0')
 	{
-		printf("%s", msg_buf->arr);
-		memset(msg_buf->arr, 0, msg_buf->i + 1);
+		msg_buf->arr[msg_buf->i - 1] = '\0';
+		printf("%s\n", msg_buf->arr);
 		msg_buf->i = 0;
+		msg_buf->arr[0] = '\0';
 	}
 }
 
@@ -52,10 +52,7 @@ static int	find_last_log(
 
 	pthread_mutex_lock(panopticon_data->log_mutex);
 	msg_info->log_index = *panopticon_data->log_index;
-	if (msg_info->log_index < 0
-		|| panopticon_data->log[msg_info->log_index].msg_type != 0
-		|| panopticon_data->log[msg_info->log_index].timestamp != 0
-		|| panopticon_data->log[msg_info->log_index].philo_i != 0)
+	if (panopticon_data->log[msg_info->log_index].msg_type != 0)
 	{
 		philo_putstr_fd(STDERR_FILENO, "Error! Log overflow\n");
 		pthread_mutex_unlock(panopticon_data->log_mutex);
@@ -93,6 +90,7 @@ int	logger_loop(
 {
 	int			goal;
 	t_msg_info	msg_info;
+	int			check_return;
 
 	goal = find_last_log(panopticon_data, &msg_info, i);
 	if (goal < 0)
@@ -103,9 +101,15 @@ int	logger_loop(
 			print_and_clear_msg_buf(msg_buf);
 		get_log_values(panopticon_data, &msg_info, *i);
 		adjust_index(msg_info.log_index, &goal, i);
-		if (log_to_str(panopticon_data, &msg_info, msg_buf) == death
-			|| panopticon_data->philos_sated == panopticon_data->philo_count)
+		check_return = log_to_str(panopticon_data, &msg_info, msg_buf);
+		if (check_return == death)
 			return (1);
+		if (panopticon_data->philos_sated == panopticon_data->philo_count)
+		{
+			msg_buf->arr[msg_buf->i - 1] = '\0';
+			return (1);
+		}
+		msg_buf->arr[msg_buf->i] = '\0';
 	}
 	print_and_clear_msg_buf(msg_buf);
 	return (0);

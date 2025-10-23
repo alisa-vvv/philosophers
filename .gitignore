@@ -1,4 +1,5 @@
 test.c
+tester.sh
 a.out
 main.c
 ./test_files/*
